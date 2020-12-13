@@ -193,7 +193,7 @@ class BinaryOpPattern(Pattern):
 
     def _string_to_operator(self):
         operators = {
-            "%": operator.__mode__,
+            "%": operator.__mod__,
             "*": operator.__mul__,
             "**": operator.__pow__,
             "+": operator.__add__,
