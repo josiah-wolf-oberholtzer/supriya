@@ -76,7 +76,7 @@ class RandomPattern(Pattern):
 
         rng = self._get_rng()
         for _ in self._loop(self._iterations):
-            expr = self._process_recursive(self._minimum, self._maximum, procedure)
+            expr = self._apply_recursive(procedure, self._minimum, self._maximum)
             should_stop = yield expr
             if should_stop:
                 return

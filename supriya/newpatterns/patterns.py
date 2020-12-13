@@ -83,6 +83,23 @@ class Pattern(metaclass=abc.ABCMeta):
 
     ### PRIVATE METHODS ###
 
+    def _apply_recursive(self, procedure, *exprs):
+        if all(not isinstance(x, Sequence) for x in exprs):
+            return procedure(*exprs)
+        coerced_exprs = [
+            expr if isinstance(expr, Sequence) else [expr]
+            for expr in exprs
+        ]
+        max_length = max(len(expr) for expr in coerced_exprs)
+        for i, expr in enumerate(coerced_exprs):
+            if len(expr) < max_length:
+                cycle = itertools.cycle(expr)
+                coerced_exprs[i] = [next(cycle) for _ in range(max_length)]
+        return [
+            self._apply_recursive(procedure, *items)
+            for items in zip(*coerced_exprs)
+        ]
+
     def _freeze_recursive(self, value):
         if isinstance(value, str):
             return value
@@ -137,25 +154,6 @@ class Pattern(metaclass=abc.ABCMeta):
             for _ in range(iterations):
                 yield True
 
-    def _process_recursive(self, expr_one, expr_two, procedure):
-        if not isinstance(expr_one, Sequence) and not isinstance(expr_two, Sequence):
-            return procedure(expr_one, expr_two)
-        if not isinstance(expr_one, Sequence):
-            expr_one = [expr_one]
-        if not isinstance(expr_two, Sequence):
-            expr_two = [expr_two]
-        length = max(len(expr_one), len(expr_two))
-        if len(expr_one) < length:
-            cycle = itertools.cycle(expr_one)
-            expr_one = (next(cycle) for _ in range(length))
-        if len(expr_two) < length:
-            cycle = itertools.cycle(expr_two)
-            expr_two = (next(cycle) for _ in range(length))
-        result = []
-        for expr_one, expr_two in zip(expr_one, expr_two):
-            result.append(self._process_recursive(expr_one, expr_two, procedure))
-        return result
-
     ### PUBLIC PROPERTIES ###
 
     @abc.abstractproperty
@@ -188,8 +186,8 @@ class BinaryOpPattern(Pattern):
             expr_two = SequencePattern([expr_two], None)
         expr_two = iter(expr_two)
         operator = self._string_to_operator()
-        for one, two in zip(expr_one, expr_two):
-            yield self._process_recursive(one, two, operator)
+        for item_one, item_two in zip(expr_one, expr_two):
+            yield self._apply_recursive(operator, item_one, item_two)
 
     def _string_to_operator(self):
         operators = {
@@ -247,8 +245,8 @@ class UnaryOpPattern(Pattern):
             expr = SequencePattern([expr], None)
         expr = iter(expr)
         operator = self._string_to_operator()
-        for result in expr:
-            yield operator(result)
+        for item in expr:
+            yield self._apply_recursive(operator, item)
 
     def _string_to_operator(self):
         operators = {
