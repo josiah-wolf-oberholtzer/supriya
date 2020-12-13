@@ -1,0 +1,129 @@
+from uuid import uuid4
+
+from uqbar.objects import new
+
+from .events import NoteEvent
+from .patterns import Pattern, SequencePattern
+
+
+class EventPattern(Pattern):
+    """
+    Akin to SuperCollider's Pbind.
+    """
+
+    def __init__(self, **patterns):
+        self._patterns = patterns
+
+    def _iterate(self, state=None):
+        patterns = self._prepare_patterns()
+        iterator_pairs = sorted(patterns.items())
+        while True:
+            event = {}
+            for key, pattern in iterator_pairs:
+                try:
+                    event[key] = next(pattern)
+                except StopIteration:
+                    return
+            should_stop = yield NoteEvent(**event)
+            if should_stop:
+                return
+
+    def _prepare_patterns(self):
+        patterns = self._patterns.copy()
+        for name, pattern in sorted(patterns.items()):
+            if not isinstance(pattern, Pattern):
+                pattern = SequencePattern([pattern], None)
+            patterns[name] = iter(pattern)
+        return patterns
+
+
+class MonoEventPattern(EventPattern):
+    """
+    Akin to SuperCollider's Pmono.
+    """
+
+    def _iterate(self, state=None):
+        uuid = uuid4()
+        patterns = self._prepare_patterns()
+        iterator_pairs = sorted(patterns.items())
+        while True:
+            event = {}
+            for key, pattern in iterator_pairs:
+                try:
+                    event[key] = next(pattern)
+                except StopIteration:
+                    return
+            should_stop = yield NoteEvent(**event, uuid=uuid)
+            if should_stop:
+                return
+
+
+class UpdateEventPattern(Pattern):
+    """
+    Akin to SuperCollider's Pbindf.
+    """
+
+    def __init__(self, pattern, **patterns):
+        self._pattern = pattern
+        self._patterns = patterns
+
+    def _iterate(self, state=None):
+        should_stop = False
+        iterator = iter(self.pattern)
+        patterns = self._prepare_patterns()
+        iterator_pairs = sorted(patterns.items())
+        while True:
+            updates = {}
+            try:
+                if not should_stop:
+                    event = next(iterator)
+                else:
+                    event = iterator.send(True)
+            except StopIteration:
+                return
+            event = next(iterator)
+            for key, key_iterator in iterator_pairs:
+                try:
+                    updates[key] = next(key_iterator)
+                except StopIteration:
+                    continue
+            event = new(event, **updates)
+            should_stop = yield event
+
+    def _prepare_patterns(self):
+        patterns = self._patterns.copy()
+        for name, pattern in sorted(patterns.items()):
+            if not isinstance(pattern, Pattern):
+                pattern = SequencePattern([pattern], None)
+            patterns[name] = iter(pattern)
+        return patterns
+
+
+class ChainEventPattern(Pattern):
+    """
+    Akin to SuperCollider's Pchain.
+    """
+
+    def __init__(self, patterns):
+        self._patterns = tuple(patterns)
+
+    def _iterate(self, state=None):
+        patterns = [iter(_) for _ in self._patterns]
+        while True:
+            try:
+                event = next(patterns[0])
+            except StopIteration:
+                return
+            for pattern in patterns[1:]:
+                try:
+                    template_event = next(pattern)
+                except StopIteration:
+                    return
+                template_dict = template_event.as_dict()
+                for key, value in tuple(template_dict.items()):
+                    if value is None:
+                        template_dict.pop(key)
+                event = new(event, **template_dict)
+            should_stop = yield event
+            if should_stop:
+                return
