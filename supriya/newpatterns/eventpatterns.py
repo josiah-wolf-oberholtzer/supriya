@@ -32,9 +32,17 @@ class EventPattern(Pattern):
         patterns = self._patterns.copy()
         for name, pattern in sorted(patterns.items()):
             if not isinstance(pattern, Pattern):
-                pattern = SequencePattern([pattern], None)
+                pattern = SequencePattern([pattern], iterations=None)
             patterns[name] = iter(pattern)
         return patterns
+
+    @property
+    def arity(self):
+        pass
+
+    @property
+    def is_infinite(self):
+        pass
 
 
 class MonoEventPattern(EventPattern):
@@ -58,7 +66,7 @@ class MonoEventPattern(EventPattern):
                 return
 
 
-class UpdateEventPattern(Pattern):
+class UpdatePattern(Pattern):
     """
     Akin to SuperCollider's Pbindf.
     """
@@ -68,38 +76,34 @@ class UpdateEventPattern(Pattern):
         self._patterns = patterns
 
     def _iterate(self, state=None):
-        should_stop = False
-        iterator = iter(self.pattern)
-        patterns = self._prepare_patterns()
-        iterator_pairs = sorted(patterns.items())
+        event_iterator = iter(self.pattern)
+        iterator_pairs = sorted(self._prepare_patterns().items())
         while True:
-            updates = {}
             try:
-                if not should_stop:
-                    event = next(iterator)
-                else:
-                    event = iterator.send(True)
+                event = next(event_iterator)
             except StopIteration:
                 return
-            event = next(iterator)
+            template_dict = {}
             for key, key_iterator in iterator_pairs:
                 try:
-                    updates[key] = next(key_iterator)
+                    template_dict[key] = next(key_iterator)
                 except StopIteration:
-                    continue
-            event = new(event, **updates)
+                    return
+            event = new(event, **template_dict)
             should_stop = yield event
+            if should_stop:
+                return
 
     def _prepare_patterns(self):
         patterns = self._patterns.copy()
         for name, pattern in sorted(patterns.items()):
             if not isinstance(pattern, Pattern):
-                pattern = SequencePattern([pattern], None)
+                pattern = SequencePattern([pattern], iterations=None)
             patterns[name] = iter(pattern)
         return patterns
 
 
-class ChainEventPattern(Pattern):
+class ChainPattern(Pattern):
     """
     Akin to SuperCollider's Pchain.
     """

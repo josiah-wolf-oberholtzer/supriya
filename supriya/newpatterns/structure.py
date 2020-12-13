@@ -19,3 +19,16 @@ class GroupPattern(Pattern):
 class ParallelPattern(Pattern):
     def __init__(self, patterns, *, with_groups=False):
         pass
+
+
+class StructurePattern(Pattern):
+    def __init__(
+        self,
+        patterns,
+        *,
+        with_buses=False,
+        with_groups=False,
+        with_synthdef=None,
+        **kwargs,
+    ):
+        pass

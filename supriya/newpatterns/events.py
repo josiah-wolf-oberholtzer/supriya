@@ -1,22 +1,31 @@
 class Event:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+
+class BusAllocateEvent(Event):
     pass
 
 
-class BusEvent:
+class BusFreeEvent(Event):
     pass
 
 
-class GroupEvent:
+class GroupAllocateEvent(Event):
     pass
 
 
-class NoteEvent:
+class GroupFreeEvent(Event):
     pass
 
 
-class RestEvent:
+class NoteEvent(Event):
     pass
 
 
-class CompositeEvent:
+class RestEvent(Event):
+    pass
+
+
+class CompositeEvent(Event):
     pass
