@@ -1,6 +1,6 @@
 import pytest
 
-from supriya.newpatterns import UnaryOpPattern, SequencePattern
+from supriya.newpatterns import SequencePattern, UnaryOpPattern
 
 
 @pytest.mark.parametrize(
@@ -29,6 +29,6 @@ def test(input_, operator, expected, is_infinite):
         ceased = False
     if is_infinite:
         assert not ceased
-        assert actual[:len(expected)] == expected
+        assert actual[: len(expected)] == expected
     else:
         assert actual == expected

@@ -31,6 +31,6 @@ def test(input_a, operator, input_b, expected, is_infinite):
         ceased = False
     if is_infinite:
         assert not ceased
-        assert actual[:len(expected)] == expected
+        assert actual[: len(expected)] == expected
     else:
         assert actual == expected

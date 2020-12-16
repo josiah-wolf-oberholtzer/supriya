@@ -87,8 +87,7 @@ class Pattern(metaclass=abc.ABCMeta):
         if all(not isinstance(x, Sequence) for x in exprs):
             return procedure(*exprs)
         coerced_exprs = [
-            expr if isinstance(expr, Sequence) else [expr]
-            for expr in exprs
+            expr if isinstance(expr, Sequence) else [expr] for expr in exprs
         ]
         max_length = max(len(expr) for expr in coerced_exprs)
         for i, expr in enumerate(coerced_exprs):
@@ -96,8 +95,7 @@ class Pattern(metaclass=abc.ABCMeta):
                 cycle = itertools.cycle(expr)
                 coerced_exprs[i] = [next(cycle) for _ in range(max_length)]
         return [
-            self._apply_recursive(procedure, *items)
-            for items in zip(*coerced_exprs)
+            self._apply_recursive(procedure, *items) for items in zip(*coerced_exprs)
         ]
 
     def _freeze_recursive(self, value):
