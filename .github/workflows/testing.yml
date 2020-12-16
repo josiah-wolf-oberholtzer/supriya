@@ -50,12 +50,15 @@ jobs:
         mkdir build
         echo "SC_COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
         echo "SC_ORIGIN_MD5=$(echo ${SC_ORIGIN} | md5sum | head -c 7)" >> $GITHUB_ENV
+    - name: Cache date
+      run: echo "CURRENT_DATE=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
     - name: Cache SC
       id: cache
       uses: actions/cache@v2
       with:
         path: /tmp/supercollider
-        key: supercollider-${{ runner.os }}-${{ env.SC_ORIGIN_MD5 }}-${{ env.SC_COMMIT_SHA }}
+        key: supercollider-${{ runner.os }}-${{ env.SC_ORIGIN_MD5 }}-${{ env.SC_COMMIT_SHA }}-${{ env.CURRENT_DATE }}
+        restore-keys: supercollider-${{ runner.os }}-${{ env.SC_ORIGIN_MD5 }}-${{ env.SC_COMMIT_SHA }}-
     - name: Install Deps
       run: |
         export DEBIAN_FRONTEND=noninteractive
