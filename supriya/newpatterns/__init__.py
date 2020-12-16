@@ -41,5 +41,6 @@ __all__ = [
     "ShufflePattern",
     "StructurePattern",
     "StutterPattern",
+    "UnaryOpPattern",
     "UpdatePattern",
 ]
