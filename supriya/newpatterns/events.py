@@ -1,5 +1,10 @@
+from uuid import uuid4
+
+
 class Event:
-    def __init__(self, **kwargs):
+    def __init__(self, delta=0, uuid=None, **kwargs):
+        self.delta = delta
+        self.uuid = uuid or uuid4()
         self.kwargs = kwargs
 
 
@@ -20,10 +25,6 @@ class GroupFreeEvent(Event):
 
 
 class NoteEvent(Event):
-    pass
-
-
-class RestEvent(Event):
     pass
 
 

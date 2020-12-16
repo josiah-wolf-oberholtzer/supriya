@@ -1,3 +1,6 @@
+from .events import (
+    NoteEvent,
+)
 from .eventpatterns import (
     ChainPattern,
     EventPattern,
@@ -30,6 +33,7 @@ __all__ = [
     "GatePattern",
     "GroupPattern",
     "MonoEventPattern",
+    "NoteEvent",
     "ParallelPattern",
     "Pattern",
     "RandomPattern",
