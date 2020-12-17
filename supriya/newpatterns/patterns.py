@@ -94,9 +94,9 @@ class Pattern(metaclass=abc.ABCMeta):
             if len(expr) < max_length:
                 cycle = itertools.cycle(expr)
                 coerced_exprs[i] = [next(cycle) for _ in range(max_length)]
-        return [
+        return tuple(
             self._apply_recursive(procedure, *items) for items in zip(*coerced_exprs)
-        ]
+        )
 
     def _freeze_recursive(self, value):
         if isinstance(value, str):
