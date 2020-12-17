@@ -7,9 +7,9 @@ class ChoicePattern(SequencePattern):
     def __init__(self, sequence, iterations=1, forbid_repetitions=False, weights=None):
         super().__init__(sequence, iterations=iterations)
         self._forbid_repetitions = bool(forbid_repetitions)
-        if weights is None:
+        if weights:
             weights = tuple(abs(float(x)) for x in weights)
-        self._weights = weights
+        self._weights = weights or None
 
     def _iterate(self, state=None):
         rng = self._get_rng()
@@ -25,14 +25,14 @@ class ChoicePattern(SequencePattern):
                 while self.forbid_repetitions and index == previous_index:
                     index = self._find_index_unweighted(rng)
             previous_index = index
-            choice = self.sequence[index]
+            choice = self._sequence[index]
             if isinstance(choice, Pattern):
                 yield from choice
             else:
                 yield choice
 
     def _find_index_unweighted(self, rng):
-        return int(next(rng) * 0x7FFFFFFF) % len(self.sequence)
+        return int(next(rng) * 0x7FFFFFFF) % len(self._sequence)
 
     def _find_index_weighted(self, rng):
         needle = next(rng) * sum(self.weights)
@@ -115,12 +115,12 @@ class ShufflePattern(SequencePattern):
         rng = self._get_rng()
         previous_index = None
         for _ in self._loop(self._iterations):
-            indices = self._shuffle(len(self.sequence), rng, previous_index)
+            indices = self._shuffle(len(self._sequence), rng, previous_index)
             while self.forbid_repetitions and indices[0] == previous_index:
-                indices = self._shuffle(len(self.sequence), rng, previous_index)
+                indices = self._shuffle(len(self._sequence), rng, previous_index)
             previous_index = indices[-1]
             for index in indices:
-                choice = self.sequence[index]
+                choice = self._sequence[index]
                 if isinstance(choice, Pattern):
                     yield from choice
                 else:
