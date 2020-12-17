@@ -116,7 +116,11 @@ class ShufflePattern(SequencePattern):
         previous_index = None
         for _ in self._loop(self._iterations):
             indices = self._shuffle(len(self._sequence), rng, previous_index)
-            while self.forbid_repetitions and indices[0] == previous_index:
+            while (
+                self.forbid_repetitions
+                and len(indices) > 1
+                and indices[0] == previous_index
+            ):
                 indices = self._shuffle(len(self._sequence), rng, previous_index)
             previous_index = indices[-1]
             for index in indices:
