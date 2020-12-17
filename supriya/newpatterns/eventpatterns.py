@@ -38,7 +38,7 @@ class EventPattern(Pattern):
 
     @property
     def arity(self):
-        return max(self._get_arity(v) for _, v in self._patterns)
+        return max(self._get_arity(v) for v in self._patterns.values())
 
     @property
     def is_infinite(self):
@@ -70,7 +70,7 @@ class MonoEventPattern(EventPattern):
 
     @property
     def arity(self):
-        return max(self._get_arity(v) for _, v in self._patterns)
+        return max(self._get_arity(v) for v in self._patterns.values())
 
     @property
     def is_infinite(self):
@@ -120,7 +120,7 @@ class UpdatePattern(Pattern):
     def arity(self):
         return max(
             self._get_arity(self._pattern),
-            max(self._get_arity(v) for _, v in self._patterns.values()),
+            max(self._get_arity(v) for v in self._patterns.values()),
         )
 
     @property

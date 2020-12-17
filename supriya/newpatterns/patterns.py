@@ -203,7 +203,7 @@ class BinaryOpPattern(Pattern):
 
     @property
     def arity(self):
-        return max(self.__get_arity(x) for x in (self._expr_one, self._expr_two))
+        return max(self._get_arity(x) for x in (self._expr_one, self._expr_two))
 
     @property
     def expr_one(self):
@@ -354,7 +354,7 @@ class SequencePattern(Pattern):
 
     @property
     def arity(self):
-        return max(self._get_arity(x) for x in self.sequence)
+        return max(self._get_arity(x) for x in self._sequence)
 
     @property
     def is_infinite(self):
