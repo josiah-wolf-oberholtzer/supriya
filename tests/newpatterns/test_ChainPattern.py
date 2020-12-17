@@ -4,7 +4,7 @@ from supriya.newpatterns import (
     EventPattern,
     NoteEvent,
     SequencePattern,
-    UpdatePattern,
+    ChainPattern,
 )
 
 
@@ -41,8 +41,10 @@ from supriya.newpatterns import (
     ],
 )
 def test(input_a, input_b1, input_b2, input_c, expected, is_infinite, arity):
-    pattern = UpdatePattern(
-        EventPattern(a=input_a, b=input_b1,), b=input_b2, c=input_c,
+    pattern = ChainPattern(
+        EventPattern(a=input_a, b=input_b1),
+        EventPattern(b=input_b2),
+        EventPattern(c=input_c),
     )
     assert pattern.is_infinite == is_infinite
     assert pattern.arity == arity

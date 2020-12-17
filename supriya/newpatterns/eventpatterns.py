@@ -136,7 +136,7 @@ class ChainPattern(Pattern):
     Akin to SuperCollider's Pchain.
     """
 
-    def __init__(self, patterns):
+    def __init__(self, *patterns):
         self._patterns = tuple(patterns)
 
     def _iterate(self, state=None):
@@ -148,14 +148,20 @@ class ChainPattern(Pattern):
                 return
             for pattern in patterns[1:]:
                 try:
-                    template_event = next(pattern)
+                    event = event.merge(next(pattern))
                 except StopIteration:
                     return
-                template_dict = template_event.as_dict()
-                for key, value in tuple(template_dict.items()):
-                    if value is None:
-                        template_dict.pop(key)
-                event = new(event, **template_dict)
             should_stop = yield event
             if should_stop:
                 return
+
+    @property
+    def arity(self):
+        return max(self._get_arity(v) for v in self._patterns)
+
+    @property
+    def is_infinite(self):
+        for value in self._patterns:
+            if isinstance(value, Pattern) and not value.is_infinite:
+                return False
+        return True
