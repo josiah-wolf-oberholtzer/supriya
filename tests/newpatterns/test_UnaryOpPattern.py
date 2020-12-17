@@ -17,6 +17,7 @@ from supriya.newpatterns import SequencePattern, UnaryOpPattern
 )
 def test(input_, operator, expected, is_infinite):
     pattern = UnaryOpPattern(input_, operator)
+    assert pattern.is_infinite == is_infinite
     iterator = iter(pattern)
     actual = []
     ceased = True

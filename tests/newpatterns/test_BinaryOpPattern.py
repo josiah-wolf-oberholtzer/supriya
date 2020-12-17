@@ -19,6 +19,7 @@ from supriya.newpatterns import BinaryOpPattern, SequencePattern
 )
 def test(input_a, operator, input_b, expected, is_infinite):
     pattern = BinaryOpPattern(input_a, operator, input_b)
+    assert pattern.is_infinite == is_infinite
     iterator = iter(pattern)
     actual = []
     ceased = True

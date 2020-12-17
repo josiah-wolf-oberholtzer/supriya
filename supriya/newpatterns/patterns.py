@@ -215,12 +215,13 @@ class BinaryOpPattern(Pattern):
 
     @property
     def is_infinite(self):
-        return (
-            isinstance(self.expr_one, Pattern)
-            and isinstance(self.expr_two, Pattern)
-            and self.expr_one.is_infinite
-            and self.expr_two.is_infinite
+        expr_one_is_infinite = (
+            not isinstance(self.expr_one, Pattern) or self.expr_one.is_infinite
         )
+        expr_two_is_infinite = (
+            not isinstance(self.expr_two, Pattern) or self.expr_two.is_infinite
+        )
+        return expr_one_is_infinite and expr_two_is_infinite
 
     @property
     def operator(self):
@@ -267,7 +268,7 @@ class UnaryOpPattern(Pattern):
 
     @property
     def is_infinite(self):
-        return isinstance(self.expr, Pattern) and self.expr.is_infinite
+        return not isinstance(self.expr, Pattern) or self.expr.is_infinite
 
     @property
     def operator(self):
@@ -357,9 +358,9 @@ class SequencePattern(Pattern):
 
     @property
     def is_infinite(self):
-        if self.iterations is None:
+        if self._iterations is None:
             return True
-        for x in self.sequence:
+        for x in self._sequence:
             if isinstance(x, Pattern) and x.is_infinite:
                 return True
         return False

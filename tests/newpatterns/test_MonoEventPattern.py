@@ -53,6 +53,7 @@ from supriya.newpatterns import MonoEventPattern, NoteEvent, SequencePattern
 )
 def test(input_a, input_b, expected, is_infinite):
     pattern = MonoEventPattern(a=input_a, b=input_b,)
+    assert pattern.is_infinite == is_infinite
     iterator = iter(pattern)
     actual = []
     ceased = True

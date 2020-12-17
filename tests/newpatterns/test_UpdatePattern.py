@@ -1,0 +1,45 @@
+import pytest
+
+from supriya.newpatterns import (
+    EventPattern,
+    NoteEvent,
+    SequencePattern,
+    UpdatePattern,
+)
+
+
+@pytest.mark.parametrize(
+    "input_a, input_b1, input_b2, input_c, expected, is_infinite",
+    [
+        (
+            SequencePattern([1, 2, 3]),
+            SequencePattern([4, 5]),
+            SequencePattern([7, 8, 9]),
+            SequencePattern([10, 11]),
+            [{"a": 1, "b": 7, "c": 10}, {"a": 2, "b": 8, "c": 11}],
+            False,
+        )
+    ],
+)
+def test(input_a, input_b1, input_b2, input_c, expected, is_infinite):
+    pattern = UpdatePattern(
+        EventPattern(a=input_a, b=input_b1,), b=input_b2, c=input_c,
+    )
+    assert pattern.is_infinite == is_infinite
+    iterator = iter(pattern)
+    actual = []
+    ceased = True
+    for iteration in range(1000):
+        try:
+            event = next(iterator)
+            assert isinstance(event, NoteEvent)
+            actual.append(event.kwargs)
+        except StopIteration:
+            break
+    else:
+        ceased = False
+    if is_infinite:
+        assert not ceased
+        assert actual[: len(expected)] == expected
+    else:
+        assert actual == expected

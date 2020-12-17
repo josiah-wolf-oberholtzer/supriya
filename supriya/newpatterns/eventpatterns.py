@@ -38,11 +38,14 @@ class EventPattern(Pattern):
 
     @property
     def arity(self):
-        pass
+        return max(self._get_arity(v) for _, v in self._patterns)
 
     @property
     def is_infinite(self):
-        pass
+        for value in self._patterns.values():
+            if isinstance(value, Pattern) and not value.is_infinite:
+                return False
+        return True
 
 
 class MonoEventPattern(EventPattern):
@@ -65,6 +68,17 @@ class MonoEventPattern(EventPattern):
             if should_stop:
                 return
 
+    @property
+    def arity(self):
+        return max(self._get_arity(v) for _, v in self._patterns)
+
+    @property
+    def is_infinite(self):
+        for value in self._patterns.values():
+            if isinstance(value, Pattern) and not value.is_infinite:
+                return False
+        return True
+
 
 class UpdatePattern(Pattern):
     """
@@ -76,7 +90,7 @@ class UpdatePattern(Pattern):
         self._patterns = patterns
 
     def _iterate(self, state=None):
-        event_iterator = iter(self.pattern)
+        event_iterator = iter(self._pattern)
         iterator_pairs = sorted(self._prepare_patterns().items())
         while True:
             try:
@@ -101,6 +115,20 @@ class UpdatePattern(Pattern):
                 pattern = SequencePattern([pattern], iterations=None)
             patterns[name] = iter(pattern)
         return patterns
+
+    @property
+    def arity(self):
+        return max(
+            self._get_arity(self._pattern),
+            max(self._get_arity(v) for _, v in self._patterns.values()),
+        )
+
+    @property
+    def is_infinite(self):
+        for value in self._patterns.values():
+            if isinstance(value, Pattern) and not value.is_infinite:
+                return False
+        return self._pattern.is_infinite
 
 
 class ChainPattern(Pattern):

@@ -39,6 +39,7 @@ from supriya.newpatterns import SequencePattern
 )
 def test(sequence, iterations, expected, is_infinite):
     pattern = SequencePattern(sequence, iterations=iterations)
+    assert pattern.is_infinite == is_infinite
     iterator = iter(pattern)
     actual = []
     ceased = True
