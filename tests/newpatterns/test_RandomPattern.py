@@ -13,11 +13,7 @@ from supriya.newpatterns import RandomPattern
     ],
 )
 def test(minimum, maximum, iterations, is_infinite, arity):
-    pattern = RandomPattern(
-        minimum=minimum,
-        maximum=maximum,
-        iterations=iterations,
-    )
+    pattern = RandomPattern(minimum=minimum, maximum=maximum, iterations=iterations,)
     assert pattern.is_infinite == is_infinite
     assert pattern.arity == arity
     iterator = iter(pattern)
@@ -34,4 +30,5 @@ def test(minimum, maximum, iterations, is_infinite, arity):
         assert not ceased
     else:
         assert len(actual) == iterations
+    # TODO: Verify minimum / maximum bounds
     assert len(set(actual)) == len(actual)

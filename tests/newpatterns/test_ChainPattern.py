@@ -1,10 +1,10 @@
 import pytest
 
 from supriya.newpatterns import (
+    ChainPattern,
     EventPattern,
     NoteEvent,
     SequencePattern,
-    ChainPattern,
 )
 
 
@@ -34,7 +34,14 @@ from supriya.newpatterns import (
             SequencePattern([4, 5], None),
             SequencePattern([7, 8, 9], None),
             SequencePattern([10, 11], None),
-            [{'a': 1, 'b': 7, 'c': 10}, {'a': 2, 'b': 8, 'c': 11}, {'a': 3, 'b': 9, 'c': 10}, {'a': 1, 'b': 7, 'c': 11}, {'a': 2, 'b': 8, 'c': 10}, {'a': 3, 'b': 9, 'c': 11}],
+            [
+                {"a": 1, "b": 7, "c": 10},
+                {"a": 2, "b": 8, "c": 11},
+                {"a": 3, "b": 9, "c": 10},
+                {"a": 1, "b": 7, "c": 11},
+                {"a": 2, "b": 8, "c": 10},
+                {"a": 3, "b": 9, "c": 11},
+            ],
             True,
             1,
         ),
