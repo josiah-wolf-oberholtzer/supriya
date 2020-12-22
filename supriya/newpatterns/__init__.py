@@ -13,13 +13,7 @@ from .sequences import (
     RestartPattern,
     StutterPattern,
 )
-from .structure import (
-    BusPattern,
-    FxPattern,
-    GroupPattern,
-    ParallelPattern,
-    StructurePattern,
-)
+from .structure import BusPattern, FxPattern, GroupPattern, ParallelPattern
 
 __all__ = [
     "BinaryOpPattern",
@@ -39,7 +33,6 @@ __all__ = [
     "RestartPattern",
     "SequencePattern",
     "ShufflePattern",
-    "StructurePattern",
     "StutterPattern",
     "UnaryOpPattern",
     "UpdatePattern",
