@@ -7,7 +7,7 @@ import itertools
 import operator
 import random
 from collections.abc import Sequence
-from typing import Dict, Iterator
+from typing import Dict, Iterator, Optional
 
 
 class Pattern(metaclass=abc.ABCMeta):
@@ -32,18 +32,25 @@ class Pattern(metaclass=abc.ABCMeta):
 
     def __iter__(self):
         should_stop = False
-        iterator = self._iterate()
+        state: Optional[Dict] = self._setup_state()
+        iterator = self._iterate(state)
         try:
-            initial_expr = next(iterator)
+            expr = next(iterator)
         except StopIteration:
             return
-        should_stop = yield initial_expr
-        while True:
-            try:
-                expr = iterator.send(should_stop)
-                should_stop = yield expr
-            except StopIteration:
-                break
+        start_event, stop_event = self._setup_peripherals(state)
+        if start_event:
+            should_stop = yield start_event
+        if not should_stop:
+            should_stop = yield expr
+            while True:  # Exhaust iterator, even if scheduled to stop
+                try:
+                    expr = iterator.send(should_stop)
+                    should_stop = yield expr
+                except StopIteration:
+                    break
+        if stop_event:
+            yield stop_event
 
     def __mod__(self, expr):
         return BinaryOpPattern(self, "%", expr)
@@ -151,6 +158,12 @@ class Pattern(metaclass=abc.ABCMeta):
         else:
             for _ in range(iterations):
                 yield True
+
+    def _setup_state(self) -> Optional[Dict]:
+        return None
+
+    def _setup_peripherals(self, state):
+        return None, None
 
     ### PUBLIC PROPERTIES ###
 

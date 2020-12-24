@@ -24,7 +24,7 @@ class EventPattern(Pattern):
                     event[key] = next(pattern)
                 except StopIteration:
                     return
-            should_stop = yield NoteEvent(**event)
+            should_stop = yield NoteEvent(uuid4(), **event)
             if should_stop:
                 return
 
@@ -64,7 +64,7 @@ class MonoEventPattern(EventPattern):
                     event[key] = next(pattern)
                 except StopIteration:
                     return
-            should_stop = yield NoteEvent(**event, uuid=uuid)
+            should_stop = yield NoteEvent(uuid, **event)
             if should_stop:
                 return
 
