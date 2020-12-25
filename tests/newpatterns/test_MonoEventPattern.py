@@ -4,7 +4,7 @@ from supriya.newpatterns import MonoEventPattern, NoteEvent, SequencePattern
 
 
 @pytest.mark.parametrize(
-    "input_a, input_b, expected, is_infinite, arity",
+    "input_a, input_b, expected, is_infinite",
     [
         (
             SequencePattern([1, 2, 3], None),
@@ -18,49 +18,42 @@ from supriya.newpatterns import MonoEventPattern, NoteEvent, SequencePattern
                 {"a": 3, "b": 5},
             ],
             True,
-            1,
         ),
         (
             SequencePattern([1, 2, 3], None),
             SequencePattern([4, 5], 1),
             [{"a": 1, "b": 4}, {"a": 2, "b": 5}],
             False,
-            1,
         ),
         (
             SequencePattern([1, 2, 3], None),
             SequencePattern([4, 5], 2),
             [{"a": 1, "b": 4}, {"a": 2, "b": 5}, {"a": 3, "b": 4}, {"a": 1, "b": 5}],
             False,
-            1,
         ),
         (
             SequencePattern([1, 2, 3], 1),
             SequencePattern([4, 5], 1),
             [{"a": 1, "b": 4}, {"a": 2, "b": 5}],
             False,
-            1,
         ),
         (
             SequencePattern([1, 2, 3], 1),
             SequencePattern([4, 5], None),
             [{"a": 1, "b": 4}, {"a": 2, "b": 5}, {"a": 3, "b": 4}],
             False,
-            1,
         ),
         (
             SequencePattern([1, 2, 3], 1),
             4,
             [{"a": 1, "b": 4}, {"a": 2, "b": 4}, {"a": 3, "b": 4}],
             False,
-            1,
         ),
     ],
 )
-def test(input_a, input_b, expected, is_infinite, arity):
+def test(input_a, input_b, expected, is_infinite):
     pattern = MonoEventPattern(a=input_a, b=input_b,)
     assert pattern.is_infinite == is_infinite
-    assert pattern.arity == arity
     iterator = iter(pattern)
     actual = []
     ceased = True

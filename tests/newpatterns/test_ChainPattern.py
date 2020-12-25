@@ -9,7 +9,7 @@ from supriya.newpatterns import (
 
 
 @pytest.mark.parametrize(
-    "input_a, input_b1, input_b2, input_c, expected, is_infinite, arity",
+    "input_a, input_b1, input_b2, input_c, expected, is_infinite",
     [
         (
             SequencePattern([1, 2, 3]),
@@ -18,7 +18,6 @@ from supriya.newpatterns import (
             SequencePattern([10, 11]),
             [{"a": 1, "b": 7, "c": 10}, {"a": 2, "b": 8, "c": 11}],
             False,
-            1,
         ),
         (
             SequencePattern([1, 2, 3], None),
@@ -27,7 +26,6 @@ from supriya.newpatterns import (
             SequencePattern([10, 11]),
             [{"a": 1, "b": 7, "c": 10}, {"a": 2, "b": 8, "c": 11}],
             False,
-            1,
         ),
         (
             SequencePattern([1, 2, 3], None),
@@ -43,18 +41,16 @@ from supriya.newpatterns import (
                 {"a": 3, "b": 9, "c": 11},
             ],
             True,
-            1,
         ),
     ],
 )
-def test(input_a, input_b1, input_b2, input_c, expected, is_infinite, arity):
+def test(input_a, input_b1, input_b2, input_c, expected, is_infinite):
     pattern = ChainPattern(
         EventPattern(a=input_a, b=input_b1),
         EventPattern(b=input_b2),
         EventPattern(c=input_c),
     )
     assert pattern.is_infinite == is_infinite
-    assert pattern.arity == arity
     iterator = iter(pattern)
     actual = []
     ceased = True

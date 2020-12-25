@@ -125,13 +125,6 @@ class Pattern(metaclass=abc.ABCMeta):
             return tuple(self._freeze_recursive(_) for _ in value)
         return value
 
-    def _get_arity(self, value):
-        if isinstance(value, Pattern):
-            return value.arity
-        elif isinstance(value, Sequence):
-            return len(value)
-        return 1
-
     def _get_rng(self):
         identifier = None
         try:
@@ -181,10 +174,6 @@ class Pattern(metaclass=abc.ABCMeta):
     ### PUBLIC PROPERTIES ###
 
     @abc.abstractproperty
-    def arity(self):
-        raise NotImplementedError
-
-    @abc.abstractproperty
     def is_infinite(self):
         raise NotImplementedError
 
@@ -226,10 +215,6 @@ class BinaryOpPattern(Pattern):
         return operators[self.operator]
 
     ### PUBLIC PROPERTIES ###
-
-    @property
-    def arity(self):
-        return max(self._get_arity(x) for x in (self._expr_one, self._expr_two))
 
     @property
     def expr_one(self):
@@ -285,10 +270,6 @@ class UnaryOpPattern(Pattern):
     ### PUBLIC PROPERTIES ###
 
     @property
-    def arity(self):
-        return self._get_arity(self.expr)
-
-    @property
     def expr(self):
         return self._expr
 
@@ -323,10 +304,6 @@ class SeedPattern(Pattern):
             del self._rngs[identifier]
 
     ### PUBLIC PROPERTIES ###
-
-    @property
-    def arity(self):
-        return self._pattern.arity
 
     @property
     def is_infinite(self):
@@ -377,10 +354,6 @@ class SequencePattern(Pattern):
                     return
 
     ### PUBLIC PROPERTIES ###
-
-    @property
-    def arity(self):
-        return max(self._get_arity(x) for x in self._sequence)
 
     @property
     def is_infinite(self):

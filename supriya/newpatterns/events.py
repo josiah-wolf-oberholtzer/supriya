@@ -1,11 +1,24 @@
 from uuid import UUID
 
+from uqbar.objects import get_repr, get_vars
+
 from supriya.enums import AddAction, CalculationRate
 
 
 class Event:
     def __init__(self, *, delta=0.0):
         self.delta = delta
+
+    def __eq__(self, expr):
+        self_values = type(self), get_vars(self)
+        try:
+            expr_values = type(expr), get_vars(expr)
+        except AttributeError:
+            expr_values = type(expr), expr
+        return self_values == expr_values
+
+    def __repr__(self):
+        return get_repr(self, multiline=False)
 
 
 class BusAllocateEvent(Event):
@@ -92,3 +105,40 @@ class SynthAllocateEvent(Event):
         self.synthdef = synthdef
         self.target_node = target_node
         self.kwargs = kwargs
+
+
+def sanitize_uuid(uuid, cache):
+    if uuid not in cache:
+        cache[uuid] = UUID(f"00000000-0000-0000-0000-{len(cache):012d}")
+    return cache[uuid]
+
+
+def sanitize_event(event, cache):
+    sanitize_data = {}
+    args, _, kwargs = get_vars(event)
+    for key, value in args.items():
+        if isinstance(value, UUID):
+            value = sanitize_uuid(value, cache)
+        sanitize_data[key] = value
+    for key, value in sorted(kwargs.items()):
+        if isinstance(value, UUID):
+            value = sanitize_uuid(value, cache)
+        sanitize_data[key] = value
+    return type(event)(**sanitize_data)
+
+
+def sanitize(events):
+    cache = {}
+    sanitized_events = []
+    for event in events:
+        if isinstance(event, CompositeEvent):
+            sanitized_event = CompositeEvent(
+                events=[
+                    sanitize_event(child_event, cache) for child_event in event.events
+                ],
+                delta=event.delta,
+            )
+        else:
+            sanitized_event = sanitize_event(event, cache)
+        sanitized_events.append(sanitized_event)
+    return sanitized_events

@@ -5,21 +5,20 @@ from supriya.newpatterns import ShufflePattern
 
 
 @pytest.mark.parametrize(
-    "sequence, iterations, forbid_repetitions, stride, is_infinite, arity",
+    "sequence, iterations, forbid_repetitions, stride, is_infinite",
     [
-        ([1], 1, False, 1, False, 1),
-        ([1], None, False, 1, True, 1),
-        ([1, 2, 3], 1, False, 3, False, 1),
-        ([1, 2, 3], 2, False, 3, False, 1),
-        ([1, 2, 3], None, False, 3, True, 1),
+        ([1], 1, False, 1, False),
+        ([1], None, False, 1, True),
+        ([1, 2, 3], 1, False, 3, False),
+        ([1, 2, 3], 2, False, 3, False),
+        ([1, 2, 3], None, False, 3, True),
     ],
 )
-def test(sequence, iterations, forbid_repetitions, stride, is_infinite, arity):
+def test(sequence, iterations, forbid_repetitions, stride, is_infinite):
     pattern = ShufflePattern(
         sequence, iterations=iterations, forbid_repetitions=forbid_repetitions,
     )
     assert pattern.is_infinite == is_infinite
-    assert pattern.arity == arity
     iterator = iter(pattern)
     ceased = True
     actual = []

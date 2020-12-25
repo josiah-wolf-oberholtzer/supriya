@@ -82,10 +82,6 @@ class RandomPattern(Pattern):
                 return
 
     @property
-    def arity(self):
-        return max(self._get_arity(x) for x in (self._minimum, self._maximum))
-
-    @property
     def distribution(self):
         return self._distribution
 

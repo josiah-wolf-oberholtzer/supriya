@@ -37,10 +37,6 @@ class EventPattern(Pattern):
         return patterns
 
     @property
-    def arity(self):
-        return max(self._get_arity(v) for v in self._patterns.values())
-
-    @property
     def is_infinite(self):
         for value in self._patterns.values():
             if isinstance(value, Pattern) and not value.is_infinite:
@@ -67,10 +63,6 @@ class MonoEventPattern(EventPattern):
             should_stop = yield NoteEvent(uuid, **event)
             if should_stop:
                 return
-
-    @property
-    def arity(self):
-        return max(self._get_arity(v) for v in self._patterns.values())
 
     @property
     def is_infinite(self):
@@ -117,13 +109,6 @@ class UpdatePattern(Pattern):
         return patterns
 
     @property
-    def arity(self):
-        return max(
-            self._get_arity(self._pattern),
-            max(self._get_arity(v) for v in self._patterns.values()),
-        )
-
-    @property
     def is_infinite(self):
         for value in self._patterns.values():
             if isinstance(value, Pattern) and not value.is_infinite:
@@ -154,10 +139,6 @@ class ChainPattern(Pattern):
             should_stop = yield event
             if should_stop:
                 return
-
-    @property
-    def arity(self):
-        return max(self._get_arity(v) for v in self._patterns)
 
     @property
     def is_infinite(self):

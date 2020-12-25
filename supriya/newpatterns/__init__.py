@@ -4,7 +4,13 @@ from .eventpatterns import (
     MonoEventPattern,
     UpdatePattern,
 )
-from .events import NoteEvent
+from .events import (
+    CompositeEvent,
+    GroupAllocateEvent,
+    NodeFreeEvent,
+    NoteEvent,
+    NullEvent,
+)
 from .noise import ChoicePattern, RandomPattern, ShufflePattern
 from .patterns import BinaryOpPattern, Pattern, SequencePattern, UnaryOpPattern
 from .sequences import (
@@ -20,12 +26,16 @@ __all__ = [
     "BusPattern",
     "ChainPattern",
     "ChoicePattern",
+    "CompositeEvent",
     "EventPattern",
     "FxPattern",
     "GatePattern",
+    "GroupAllocateEvent",
     "GroupPattern",
     "MonoEventPattern",
+    "NodeFreeEvent",
     "NoteEvent",
+    "NullEvent",
     "ParallelPattern",
     "Pattern",
     "RandomPattern",

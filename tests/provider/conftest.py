@@ -1,8 +1,8 @@
 import pytest
 
+from supriya.assets.synthdefs import default
 from supriya.nonrealtime import Session
 from supriya.realtime import Server
-from supriya.assets.synthdefs import default
 
 
 @pytest.fixture

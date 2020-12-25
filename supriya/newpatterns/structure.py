@@ -28,10 +28,18 @@ class BusPattern(Pattern):
         self._channel_count = channel_count
         self._release_time = release_time
 
+    @property
+    def is_infinite(self):
+        return self._pattern.is_infinite
+
 
 class FxPattern(Pattern):
     def __init__(self, pattern, synthdef, **kwargs):
         pass
+
+    @property
+    def is_infinite(self):
+        return self._pattern.is_infinite
 
 
 class GroupPattern(Pattern):
@@ -58,10 +66,6 @@ class GroupPattern(Pattern):
 
     def _setup_state(self):
         return {"group_uuid": uuid4()}
-
-    @property
-    def arity(self):
-        return self._pattern.arity
 
     @property
     def is_infinite(self):
