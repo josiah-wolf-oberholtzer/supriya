@@ -18,6 +18,9 @@ from .patterns import Pattern
 
 
 class BusPattern(Pattern):
+
+    ### INITIALIZER ###
+
     def __init__(
         self, pattern, calculation_rate="audio", channel_count=1, release_time=0.25,
     ):
@@ -25,6 +28,8 @@ class BusPattern(Pattern):
         self._calculation_rate = CalculationRate.from_expr(calculation_rate)
         self._channel_count = channel_count
         self._release_time = release_time
+
+    ### PRIVATE METHODS ###
 
     def _adjust(self, expr, state):
         args, _, kwargs = get_vars(expr)
@@ -42,7 +47,7 @@ class BusPattern(Pattern):
         return expr
 
     def _iterate(self, state=None):
-        return iter(self.pattern)
+        return iter(self._pattern)
 
     def _setup_peripherals(self, state):
         rate = self._calculation_rate.name.lower()
@@ -76,14 +81,46 @@ class BusPattern(Pattern):
     def _setup_state(self):
         return {"bus": uuid4(), "link": uuid4(), "group": uuid4()}
 
+    ### PUBLIC PROPERTIES ###
+
     @property
     def is_infinite(self):
         return self._pattern.is_infinite
 
 
 class FxPattern(Pattern):
-    def __init__(self, pattern, synthdef, **kwargs):
-        pass
+
+    ### INITIALIZER ###
+
+    def __init__(self, pattern, synthdef, release_time=0.25, **kwargs):
+        self._pattern = pattern
+        self._release_time = release_time
+        self._synthdef = synthdef
+        self._kwargs = kwargs
+
+    ### PRIVATE METHODS ###
+
+    def _iterate(self, state=None):
+        return iter(self._pattern)
+
+    def _setup_peripherals(self, state):
+        starts = [
+            SynthAllocateEvent(
+                add_action="ADD_TO_TAIL",
+                synthdef=self._synthdef,
+                uuid=state["synth"],
+                **self._kwargs,
+            )
+        ]
+        stops = [NodeFreeEvent(uuid=state["synth"])]
+        if self._release_time:
+            stops.insert(0, NullEvent(delta=self._release_time))
+        return CompositeEvent(starts), CompositeEvent(stops)
+
+    def _setup_state(self):
+        return {"synth": uuid4()}
+
+    ### PUBLIC PROPERTIES ###
 
     @property
     def is_infinite(self):
@@ -91,12 +128,22 @@ class FxPattern(Pattern):
 
 
 class GroupPattern(Pattern):
+
+    ### INITIALIZER ###
+
     def __init__(self, pattern, release_time=0.25):
         self._pattern = pattern
         self._release_time = release_time
 
+    ### PRIVATE METHODS ###
+
     def _adjust(self, expr, state):
-        return new(expr, target_node=state["group"])
+        updates = {}
+        if hasattr(expr, "target_node") and expr.target_node is None:
+            updates["target_node"] = state["group"]
+        if updates:
+            return new(expr, **updates)
+        return expr
 
     def _iterate(self, state=None):
         return iter(self._pattern)
@@ -110,6 +157,8 @@ class GroupPattern(Pattern):
 
     def _setup_state(self):
         return {"group": uuid4()}
+
+    ### PUBLIC PROPERTIES ###
 
     @property
     def is_infinite(self):

@@ -22,10 +22,13 @@ class Event:
 
 
 class BusAllocateEvent(Event):
-    def __init__(self, uuid: UUID, *, calculation_rate="audio", delta=0.0):
+    def __init__(
+        self, uuid: UUID, *, calculation_rate="audio", channel_count=1, delta=0.0
+    ):
         Event.__init__(self, delta=delta)
         self.uuid = uuid
         self.calculation_rate = CalculationRate.from_expr(calculation_rate)
+        self.channel_count = channel_count
 
 
 class BusFreeEvent(Event):

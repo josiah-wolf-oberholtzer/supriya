@@ -5,11 +5,14 @@ from .eventpatterns import (
     UpdatePattern,
 )
 from .events import (
+    BusAllocateEvent,
+    BusFreeEvent,
     CompositeEvent,
     GroupAllocateEvent,
     NodeFreeEvent,
     NoteEvent,
     NullEvent,
+    SynthAllocateEvent,
 )
 from .noise import ChoicePattern, RandomPattern, ShufflePattern
 from .parallel import ParallelPattern
@@ -24,6 +27,8 @@ from .structure import BusPattern, FxPattern, GroupPattern
 
 __all__ = [
     "BinaryOpPattern",
+    "BusAllocateEvent",
+    "BusFreeEvent",
     "BusPattern",
     "ChainPattern",
     "ChoicePattern",
@@ -45,6 +50,7 @@ __all__ = [
     "SequencePattern",
     "ShufflePattern",
     "StutterPattern",
+    "SynthAllocateEvent",
     "UnaryOpPattern",
     "UpdatePattern",
 ]

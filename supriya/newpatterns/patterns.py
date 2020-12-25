@@ -37,7 +37,7 @@ class Pattern(metaclass=abc.ABCMeta):
         state: Optional[Dict] = self._setup_state()
         iterator = self._iterate(state)
         try:
-            expr = self._adjust(next(iterator), state=state)
+            expr = self._adjust_recursive(next(iterator), state=state)
         except StopIteration:
             return
         start_event, stop_event = self._setup_peripherals(state)
@@ -47,7 +47,9 @@ class Pattern(metaclass=abc.ABCMeta):
             should_stop = yield expr
             while True:  # Exhaust iterator, even if scheduled to stop
                 try:
-                    expr = self._adjust(iterator.send(should_stop), state=state)
+                    expr = self._adjust_recursive(
+                        iterator.send(should_stop), state=state
+                    )
                     should_stop = yield expr
                 except StopIteration:
                     break
