@@ -22,26 +22,26 @@ class Event:
 
 
 class BusAllocateEvent(Event):
-    def __init__(self, uuid: UUID, *, calculation_rate="audio", delta=1.0):
+    def __init__(self, uuid: UUID, *, calculation_rate="audio", delta=0.0):
         Event.__init__(self, delta=delta)
         self.uuid = uuid
         self.calculation_rate = CalculationRate.from_expr(calculation_rate)
 
 
 class BusFreeEvent(Event):
-    def __init__(self, uuid: UUID, *, delta=1.0):
+    def __init__(self, uuid: UUID, *, delta=0.0):
         Event.__init__(self, delta=delta)
         self.uuid = uuid
 
 
 class CompositeEvent(Event):
-    def __init__(self, events, *, delta=1.0):
+    def __init__(self, events, *, delta=0.0):
         Event.__init__(self, delta=delta)
         self.events = events
 
 
 class GroupAllocateEvent(Event):
-    def __init__(self, uuid: UUID, *, add_action=None, delta=1.0, target_node=None):
+    def __init__(self, uuid: UUID, *, add_action=None, delta=0.0, target_node=None):
         Event.__init__(self, delta=delta)
         self.uuid = uuid
         self.add_action = AddAction.from_expr(add_action)
@@ -49,7 +49,7 @@ class GroupAllocateEvent(Event):
 
 
 class NodeFreeEvent(Event):
-    def __init__(self, uuid: UUID, *, delta=1.0):
+    def __init__(self, uuid: UUID, *, delta=0.0):
         Event.__init__(self, delta=delta)
         self.uuid = uuid
 
@@ -60,7 +60,7 @@ class NoteEvent(Event):
         uuid: UUID,
         *,
         add_action=None,
-        delta=1.0,
+        delta=0.0,
         duration=None,
         synthdef=None,
         target_node=None,
@@ -94,7 +94,7 @@ class SynthAllocateEvent(Event):
         uuid: UUID,
         *,
         add_action=None,
-        delta=1.0,
+        delta=0.0,
         synthdef=None,
         target_node=None,
         **kwargs,

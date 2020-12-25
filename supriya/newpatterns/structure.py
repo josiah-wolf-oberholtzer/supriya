@@ -1,32 +1,80 @@
 from uuid import uuid4
 
-from uqbar.objects import new
+from uqbar.objects import get_vars, new
 
+from supriya.assets import synthdefs
 from supriya.enums import CalculationRate
 
 from .events import (
+    BusAllocateEvent,
+    BusFreeEvent,
     CompositeEvent,
     GroupAllocateEvent,
     NodeFreeEvent,
     NullEvent,
+    SynthAllocateEvent,
 )
 from .patterns import Pattern
 
 
 class BusPattern(Pattern):
     def __init__(
-        self,
-        pattern,
-        calculation_rate="AUDIO",
-        channel_count=1,
-        release_time=0.25,
-        in_parameter_name="in_",
-        out_parameter_name="out",
+        self, pattern, calculation_rate="audio", channel_count=1, release_time=0.25,
     ):
         self._pattern = pattern
         self._calculation_rate = CalculationRate.from_expr(calculation_rate)
         self._channel_count = channel_count
         self._release_time = release_time
+
+    def _adjust(self, expr, state):
+        args, _, kwargs = get_vars(expr)
+        updates = {}
+        if hasattr(expr, "target_node") and expr.target_node is None:
+            updates["target_node"] = state["group"]
+        if hasattr(expr, "synthdef"):
+            synthdef = getattr(expr, "synthdef") or synthdefs.default
+            parameter_names = synthdef.parameter_names
+            for name in ("in_", "out"):
+                if name in parameter_names and kwargs.get(name) is None:
+                    updates[name] = state["bus"]
+        if updates:
+            return new(expr, **updates)
+        return expr
+
+    def _iterate(self, state=None):
+        return iter(self.pattern)
+
+    def _setup_peripherals(self, state):
+        rate = self._calculation_rate.name.lower()
+        link_synthdef_name = f"system_link_{rate}_{self._channel_count}"
+        starts = [
+            BusAllocateEvent(
+                calculation_rate=self._calculation_rate,
+                channel_count=self._channel_count,
+                uuid=state["bus"],
+            ),
+            GroupAllocateEvent(uuid=state["group"]),
+            SynthAllocateEvent(
+                add_action="ADD_AFTER",
+                amplitude=1.0,
+                fade_time=self._release_time,
+                in_=state["bus"],
+                synthdef=getattr(synthdefs, link_synthdef_name),
+                target_node=state["group"],
+                uuid=state["link"],
+            ),
+        ]
+        stops = [
+            NodeFreeEvent(uuid=state["link"]),
+            NodeFreeEvent(uuid=state["group"]),
+            BusFreeEvent(uuid=state["bus"]),
+        ]
+        if self._release_time:
+            stops.insert(1, NullEvent(delta=self._release_time))
+        return CompositeEvent(starts), CompositeEvent(stops)
+
+    def _setup_state(self):
+        return {"bus": uuid4(), "link": uuid4(), "group": uuid4()}
 
     @property
     def is_infinite(self):
@@ -48,30 +96,21 @@ class GroupPattern(Pattern):
         self._release_time = release_time
 
     def _adjust(self, expr, state):
-        return new(expr, target_node=state["group_uuid"])
+        return new(expr, target_node=state["group"])
 
     def _iterate(self, state=None):
         return iter(self._pattern)
 
     def _setup_peripherals(self, state):
-        uuid = state["group_uuid"]
-        starts, stops = [], []
-        starts.append(
-            GroupAllocateEvent(add_action="ADD_TO_HEAD", delta=0.0, uuid=uuid)
-        )
+        starts = [GroupAllocateEvent(add_action="ADD_TO_HEAD", uuid=state["group"])]
+        stops = [NodeFreeEvent(uuid=state["group"])]
         if self._release_time:
-            stops.append(NullEvent(delta=self._release_time))
-        stops.append(NodeFreeEvent(delta=0.0, uuid=uuid))
+            stops.insert(0, NullEvent(delta=self._release_time))
         return CompositeEvent(starts), CompositeEvent(stops)
 
     def _setup_state(self):
-        return {"group_uuid": uuid4()}
+        return {"group": uuid4()}
 
     @property
     def is_infinite(self):
         return self._pattern.is_infinite
-
-
-class ParallelPattern(Pattern):
-    def __init__(self, patterns, *, with_groups=False):
-        pass
