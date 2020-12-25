@@ -9,6 +9,8 @@ import random
 from collections.abc import Sequence
 from typing import Dict, Iterator, Optional
 
+from .events import CompositeEvent
+
 
 class Pattern(metaclass=abc.ABCMeta):
 
@@ -35,7 +37,7 @@ class Pattern(metaclass=abc.ABCMeta):
         state: Optional[Dict] = self._setup_state()
         iterator = self._iterate(state)
         try:
-            expr = next(iterator)
+            expr = self._adjust(next(iterator), state=state)
         except StopIteration:
             return
         start_event, stop_event = self._setup_peripherals(state)
@@ -45,7 +47,7 @@ class Pattern(metaclass=abc.ABCMeta):
             should_stop = yield expr
             while True:  # Exhaust iterator, even if scheduled to stop
                 try:
-                    expr = iterator.send(should_stop)
+                    expr = self._adjust(iterator.send(should_stop), state=state)
                     should_stop = yield expr
                 except StopIteration:
                     break
@@ -89,6 +91,17 @@ class Pattern(metaclass=abc.ABCMeta):
         return BinaryOpPattern(self, "-", expr)
 
     ### PRIVATE METHODS ###
+
+    def _adjust(self, expr, state=None):
+        return expr
+
+    def _adjust_recursive(self, expr, state=None):
+        if isinstance(expr, CompositeEvent):
+            return CompositeEvent(
+                [self._adjust(event, state=state) for event in expr.events],
+                delta=expr.delta,
+            )
+        return self._adjust(expr, state=state)
 
     def _apply_recursive(self, procedure, *exprs):
         if all(not isinstance(x, Sequence) for x in exprs):

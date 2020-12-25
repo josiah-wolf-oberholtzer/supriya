@@ -1,5 +1,7 @@
 from uuid import uuid4
 
+from uqbar.objects import new
+
 from supriya.enums import CalculationRate
 
 from .events import (
@@ -37,16 +39,33 @@ class GroupPattern(Pattern):
         self._pattern = pattern
         self._release_time = release_time
 
+    def _adjust(self, expr, state):
+        return new(expr, target_node=state["group_uuid"])
+
+    def _iterate(self, state=None):
+        return iter(self._pattern)
+
     def _setup_peripherals(self, state):
         uuid = state["group_uuid"]
-        starts = [GroupAllocateEvent(add_action="ADD_TO_HEAD", uuid=uuid)]
-        stops = [NodeFreeEvent(uuid=uuid)]
-        if self.release_time:
-            stops.insert(0, NullEvent(delta=self.release_time))
+        starts, stops = [], []
+        starts.append(
+            GroupAllocateEvent(add_action="ADD_TO_HEAD", delta=0.0, uuid=uuid)
+        )
+        if self._release_time:
+            stops.append(NullEvent(delta=self._release_time))
+        stops.append(NodeFreeEvent(delta=0.0, uuid=uuid))
         return CompositeEvent(starts), CompositeEvent(stops)
 
     def _setup_state(self):
         return {"group_uuid": uuid4()}
+
+    @property
+    def arity(self):
+        return self._pattern.arity
+
+    @property
+    def is_infinite(self):
+        return self._pattern.is_infinite
 
 
 class ParallelPattern(Pattern):
