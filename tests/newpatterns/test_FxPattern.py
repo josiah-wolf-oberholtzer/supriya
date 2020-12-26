@@ -1,5 +1,3 @@
-from uuid import UUID
-
 import pytest
 
 from supriya import AddAction
@@ -13,6 +11,7 @@ from supriya.newpatterns import (
     SequencePattern,
     SynthAllocateEvent,
 )
+from supriya.newpatterns.events import MockUUID as M
 from supriya.newpatterns.events import sanitize
 from supriya.synthdefs import SynthDefBuilder
 from supriya.ugens import FreeVerb, In, Out
@@ -37,17 +36,13 @@ synthdef = builder.build()
                 CompositeEvent(
                     [
                         SynthAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"),
-                            add_action=AddAction.ADD_TO_TAIL,
-                            synthdef=synthdef,
+                            M("A"), add_action=AddAction.ADD_TO_TAIL, synthdef=synthdef,
                         ),
                     ]
                 ),
-                NoteEvent(UUID("00000000-0000-0000-0000-000000000001"), a=1,),
-                NoteEvent(UUID("00000000-0000-0000-0000-000000000002"), a=2,),
-                CompositeEvent(
-                    [NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000000"))]
-                ),
+                NoteEvent(M("B"), a=1,),
+                NoteEvent(M("C"), a=2,),
+                CompositeEvent([NodeFreeEvent(M("A"))]),
             ],
             False,
         ),
@@ -60,21 +55,16 @@ synthdef = builder.build()
                 CompositeEvent(
                     [
                         SynthAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"),
+                            M("A"),
                             add_action=AddAction.ADD_TO_TAIL,
                             mix=0.25,
                             synthdef=synthdef,
                         ),
                     ]
                 ),
-                NoteEvent(UUID("00000000-0000-0000-0000-000000000001"), a=1,),
-                NoteEvent(UUID("00000000-0000-0000-0000-000000000002"), a=2,),
-                CompositeEvent(
-                    [
-                        NullEvent(delta=0.5),
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000000")),
-                    ]
-                ),
+                NoteEvent(M("B"), a=1,),
+                NoteEvent(M("C"), a=2,),
+                CompositeEvent([NullEvent(delta=0.5), NodeFreeEvent(M("A"))]),
             ],
             False,
         ),

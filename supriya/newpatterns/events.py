@@ -117,9 +117,25 @@ class SynthAllocateEvent(Event):
         self.kwargs = kwargs
 
 
+class MockUUID:
+    def __init__(self, string):
+        self.string = string
+
+    def __eq__(self, expr):
+        self_values = type(self), get_vars(self)
+        try:
+            expr_values = type(expr), get_vars(expr)
+        except AttributeError:
+            expr_values = type(expr), expr
+        return self_values == expr_values
+
+    def __repr__(self):
+        return get_repr(self, multiline=False)
+
+
 def sanitize_uuid(uuid, cache):
     if uuid not in cache:
-        cache[uuid] = UUID(f"00000000-0000-0000-0000-{len(cache):012d}")
+        cache[uuid] = MockUUID(chr(len(cache) + 65))
     return cache[uuid]
 
 

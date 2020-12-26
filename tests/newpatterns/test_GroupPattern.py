@@ -1,5 +1,3 @@
-from uuid import UUID
-
 import pytest
 
 from supriya.newpatterns import (
@@ -12,6 +10,7 @@ from supriya.newpatterns import (
     NullEvent,
     SequencePattern,
 )
+from supriya.newpatterns.events import MockUUID as M
 from supriya.newpatterns.events import sanitize
 
 
@@ -22,30 +21,10 @@ from supriya.newpatterns.events import sanitize
             EventPattern(a=SequencePattern([1, 2])),
             0.0,
             [
-                CompositeEvent(
-                    [
-                        GroupAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"), delta=0.0,
-                        ),
-                    ]
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000001"),
-                    a=1,
-                    target_node=UUID("00000000-0000-0000-0000-000000000000"),
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000002"),
-                    a=2,
-                    target_node=UUID("00000000-0000-0000-0000-000000000000"),
-                ),
-                CompositeEvent(
-                    [
-                        NodeFreeEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"), delta=0.0
-                        ),
-                    ]
-                ),
+                CompositeEvent([GroupAllocateEvent(M("A"), delta=0.0)]),
+                NoteEvent(M("B"), a=1, target_node=M("A"),),
+                NoteEvent(M("C"), a=2, target_node=M("A"),),
+                CompositeEvent([NodeFreeEvent(M("A"), delta=0.0)]),
             ],
             False,
         ),
@@ -53,30 +32,11 @@ from supriya.newpatterns.events import sanitize
             EventPattern(a=SequencePattern([1, 2])),
             0.25,
             [
+                CompositeEvent([GroupAllocateEvent(M("A"), delta=0.0)]),
+                NoteEvent(M("B"), a=1, target_node=M("A"),),
+                NoteEvent(M("C"), a=2, target_node=M("A"),),
                 CompositeEvent(
-                    [
-                        GroupAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"), delta=0.0,
-                        ),
-                    ]
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000001"),
-                    a=1,
-                    target_node=UUID("00000000-0000-0000-0000-000000000000"),
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000002"),
-                    a=2,
-                    target_node=UUID("00000000-0000-0000-0000-000000000000"),
-                ),
-                CompositeEvent(
-                    [
-                        NullEvent(delta=0.25),
-                        NodeFreeEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"), delta=0.0
-                        ),
-                    ]
+                    [NullEvent(delta=0.25), NodeFreeEvent(M("A"), delta=0.0)]
                 ),
             ],
             False,

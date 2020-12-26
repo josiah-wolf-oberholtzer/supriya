@@ -1,5 +1,3 @@
-from uuid import UUID
-
 import pytest
 
 from supriya.newpatterns import (
@@ -13,6 +11,7 @@ from supriya.newpatterns import (
     ParallelPattern,
     SequencePattern,
 )
+from supriya.newpatterns.events import MockUUID as M
 from supriya.newpatterns.events import sanitize
 
 
@@ -25,11 +24,11 @@ from supriya.newpatterns.events import sanitize
                 EventPattern(y=SequencePattern([1, 2]), delta=1.5),
             ],
             [
-                NoteEvent(UUID("00000000-0000-0000-0000-000000000000"), x=1),
-                NoteEvent(UUID("00000000-0000-0000-0000-000000000001"), delta=1.0, y=1),
-                NoteEvent(UUID("00000000-0000-0000-0000-000000000002"), delta=0.5, x=2),
-                NoteEvent(UUID("00000000-0000-0000-0000-000000000003"), delta=0.5, y=2),
-                NoteEvent(UUID("00000000-0000-0000-0000-000000000004"), delta=1.0, x=3),
+                NoteEvent(M("A"), x=1),
+                NoteEvent(M("B"), delta=1.0, y=1),
+                NoteEvent(M("C"), delta=0.5, x=2),
+                NoteEvent(M("D"), delta=0.5, y=2),
+                NoteEvent(M("E"), delta=1.0, x=3),
             ],
             False,
         ),
@@ -39,53 +38,15 @@ from supriya.newpatterns.events import sanitize
                 GroupPattern(EventPattern(y=SequencePattern([1, 2]), delta=1.5)),
             ],
             [
-                CompositeEvent(
-                    [GroupAllocateEvent(UUID("00000000-0000-0000-0000-000000000000"))]
-                ),
-                CompositeEvent(
-                    [GroupAllocateEvent(UUID("00000000-0000-0000-0000-000000000001"))]
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000002"),
-                    target_node=UUID("00000000-0000-0000-0000-000000000000"),
-                    x=1,
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000003"),
-                    delta=1.0,
-                    target_node=UUID("00000000-0000-0000-0000-000000000001"),
-                    y=1,
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000004"),
-                    delta=0.5,
-                    target_node=UUID("00000000-0000-0000-0000-000000000000"),
-                    x=2,
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000005"),
-                    delta=0.5,
-                    target_node=UUID("00000000-0000-0000-0000-000000000001"),
-                    y=2,
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000006"),
-                    delta=1.0,
-                    target_node=UUID("00000000-0000-0000-0000-000000000000"),
-                    x=3,
-                ),
-                CompositeEvent(
-                    [
-                        NullEvent(delta=0.25),
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000000")),
-                    ]
-                ),
-                CompositeEvent(
-                    [
-                        NullEvent(delta=0.25),
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000001")),
-                    ]
-                ),
+                CompositeEvent([GroupAllocateEvent(M("A"))]),
+                CompositeEvent([GroupAllocateEvent(M("B"))]),
+                NoteEvent(M("C"), target_node=M("A"), x=1,),
+                NoteEvent(M("D"), delta=1.0, target_node=M("B"), y=1,),
+                NoteEvent(M("E"), delta=0.5, target_node=M("A"), x=2,),
+                NoteEvent(M("F"), delta=0.5, target_node=M("B"), y=2,),
+                NoteEvent(M("G"), delta=1.0, target_node=M("A"), x=3,),
+                CompositeEvent([NullEvent(delta=0.25), NodeFreeEvent(M("A"))]),
+                CompositeEvent([NullEvent(delta=0.25), NodeFreeEvent(M("B"))]),
             ],
             False,
         ),

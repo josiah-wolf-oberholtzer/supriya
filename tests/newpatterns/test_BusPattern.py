@@ -1,5 +1,3 @@
-from uuid import UUID
-
 import pytest
 
 from supriya import AddAction, CalculationRate
@@ -17,6 +15,7 @@ from supriya.newpatterns import (
     SequencePattern,
     SynthAllocateEvent,
 )
+from supriya.newpatterns.events import MockUUID as M
 from supriya.newpatterns.events import sanitize
 
 
@@ -32,41 +31,29 @@ from supriya.newpatterns.events import sanitize
                 CompositeEvent(
                     [
                         BusAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"),
+                            M("A"),
                             calculation_rate=CalculationRate.AUDIO,
                             channel_count=2,
                         ),
-                        GroupAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000001"),
-                        ),
+                        GroupAllocateEvent(M("B"),),
                         SynthAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000002"),
+                            M("C"),
                             add_action=AddAction.ADD_AFTER,
                             amplitude=1.0,
                             fade_time=0.0,
-                            in_=UUID("00000000-0000-0000-0000-000000000000"),
+                            in_=M("A"),
                             synthdef=synthdefs.system_link_audio_2,
-                            target_node=UUID("00000000-0000-0000-0000-000000000001"),
+                            target_node=M("B"),
                         ),
                     ]
                 ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000003"),
-                    a=1,
-                    out=UUID("00000000-0000-0000-0000-000000000000"),
-                    target_node=UUID("00000000-0000-0000-0000-000000000001"),
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000004"),
-                    a=2,
-                    out=UUID("00000000-0000-0000-0000-000000000000"),
-                    target_node=UUID("00000000-0000-0000-0000-000000000001"),
-                ),
+                NoteEvent(M("D"), a=1, out=M("A"), target_node=M("B")),
+                NoteEvent(M("E"), a=2, out=M("A"), target_node=M("B")),
                 CompositeEvent(
                     [
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000002")),
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000001")),
-                        BusFreeEvent(UUID("00000000-0000-0000-0000-000000000000")),
+                        NodeFreeEvent(M("C")),
+                        NodeFreeEvent(M("B")),
+                        BusFreeEvent(M("A")),
                     ]
                 ),
             ],
@@ -81,42 +68,30 @@ from supriya.newpatterns.events import sanitize
                 CompositeEvent(
                     [
                         BusAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"),
+                            M("A"),
                             calculation_rate=CalculationRate.AUDIO,
                             channel_count=2,
                         ),
-                        GroupAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000001"),
-                        ),
+                        GroupAllocateEvent(M("B"),),
                         SynthAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000002"),
+                            M("C"),
                             add_action=AddAction.ADD_AFTER,
                             amplitude=1.0,
                             fade_time=0.25,
-                            in_=UUID("00000000-0000-0000-0000-000000000000"),
+                            in_=M("A"),
                             synthdef=synthdefs.system_link_audio_2,
-                            target_node=UUID("00000000-0000-0000-0000-000000000001"),
+                            target_node=M("B"),
                         ),
                     ]
                 ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000003"),
-                    a=1,
-                    out=UUID("00000000-0000-0000-0000-000000000000"),
-                    target_node=UUID("00000000-0000-0000-0000-000000000001"),
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000004"),
-                    a=2,
-                    out=UUID("00000000-0000-0000-0000-000000000000"),
-                    target_node=UUID("00000000-0000-0000-0000-000000000001"),
-                ),
+                NoteEvent(M("D"), a=1, out=M("A"), target_node=M("B")),
+                NoteEvent(M("E"), a=2, out=M("A"), target_node=M("B")),
                 CompositeEvent(
                     [
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000002")),
+                        NodeFreeEvent(M("C")),
                         NullEvent(delta=0.25),
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000001")),
-                        BusFreeEvent(UUID("00000000-0000-0000-0000-000000000000")),
+                        NodeFreeEvent(M("B")),
+                        BusFreeEvent(M("A")),
                     ]
                 ),
             ],
@@ -131,73 +106,58 @@ from supriya.newpatterns.events import sanitize
                 CompositeEvent(
                     [
                         BusAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"),
+                            M("A"),
                             calculation_rate=CalculationRate.AUDIO,
                             channel_count=2,
                         ),
-                        GroupAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000001"),
-                        ),
+                        GroupAllocateEvent(M("B"),),
                         SynthAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000002"),
+                            M("C"),
                             add_action=AddAction.ADD_AFTER,
                             amplitude=1.0,
                             fade_time=0.25,
-                            in_=UUID("00000000-0000-0000-0000-000000000000"),
+                            in_=M("A"),
                             synthdef=synthdefs.system_link_audio_2,
-                            target_node=UUID("00000000-0000-0000-0000-000000000001"),
+                            target_node=M("B"),
                         ),
                     ]
                 ),
                 CompositeEvent(
                     [
                         BusAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000003"),
+                            M("D"),
                             calculation_rate=CalculationRate.AUDIO,
                             channel_count=2,
                         ),
-                        GroupAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000004"),
-                            target_node=UUID("00000000-0000-0000-0000-000000000001"),
-                        ),
+                        GroupAllocateEvent(M("E"), target_node=M("B"),),
                         SynthAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000005"),
+                            M("F"),
                             add_action=AddAction.ADD_AFTER,
                             amplitude=1.0,
                             fade_time=0.25,
-                            in_=UUID("00000000-0000-0000-0000-000000000003"),
-                            out=UUID("00000000-0000-0000-0000-000000000000"),
+                            in_=M("D"),
+                            out=M("A"),
                             synthdef=synthdefs.system_link_audio_2,
-                            target_node=UUID("00000000-0000-0000-0000-000000000004"),
+                            target_node=M("E"),
                         ),
                     ]
                 ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000006"),
-                    a=1,
-                    out=UUID("00000000-0000-0000-0000-000000000003"),
-                    target_node=UUID("00000000-0000-0000-0000-000000000004"),
-                ),
-                NoteEvent(
-                    UUID("00000000-0000-0000-0000-000000000007"),
-                    a=2,
-                    out=UUID("00000000-0000-0000-0000-000000000003"),
-                    target_node=UUID("00000000-0000-0000-0000-000000000004"),
-                ),
+                NoteEvent(M("G"), a=1, out=M("D"), target_node=M("E"),),
+                NoteEvent(M("H"), a=2, out=M("D"), target_node=M("E"),),
                 CompositeEvent(
                     [
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000005")),
+                        NodeFreeEvent(M("F")),
                         NullEvent(delta=0.25),
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000004")),
-                        BusFreeEvent(UUID("00000000-0000-0000-0000-000000000003")),
+                        NodeFreeEvent(M("E")),
+                        BusFreeEvent(M("D")),
                     ]
                 ),
                 CompositeEvent(
                     [
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000002")),
+                        NodeFreeEvent(M("C")),
                         NullEvent(delta=0.25),
-                        NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000001")),
-                        BusFreeEvent(UUID("00000000-0000-0000-0000-000000000000")),
+                        NodeFreeEvent(M("B")),
+                        BusFreeEvent(M("A")),
                     ]
                 ),
             ],
