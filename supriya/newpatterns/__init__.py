@@ -15,7 +15,6 @@ from .events import (
     SynthAllocateEvent,
 )
 from .noise import ChoicePattern, RandomPattern, ShufflePattern
-from .parallel import ParallelPattern
 from .patterns import BinaryOpPattern, Pattern, SequencePattern, UnaryOpPattern
 from .sequences import (
     GatePattern,
@@ -23,7 +22,7 @@ from .sequences import (
     RestartPattern,
     StutterPattern,
 )
-from .structure import BusPattern, FxPattern, GroupPattern
+from .structure import BusPattern, FxPattern, GroupPattern, ParallelPattern
 
 __all__ = [
     "BinaryOpPattern",
