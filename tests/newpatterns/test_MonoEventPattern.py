@@ -26,10 +26,7 @@ from supriya.newpatterns.testutils import run_event_pattern_test
             None,
             SequencePattern([1, 2, 3], None),
             SequencePattern([4, 5], 1),
-            [
-                NoteEvent(M("A"), a=1, b=4),
-                NoteEvent(M("A"), a=2, b=5),
-            ],
+            [NoteEvent(M("A"), a=1, b=4), NoteEvent(M("A"), a=2, b=5)],
             False,
         ),
         (
@@ -48,10 +45,7 @@ from supriya.newpatterns.testutils import run_event_pattern_test
             None,
             SequencePattern([1, 2, 3], 1),
             SequencePattern([4, 5], 1),
-            [
-                NoteEvent(M("A"), a=1, b=4),
-                NoteEvent(M("A"), a=2, b=5),
-            ],
+            [NoteEvent(M("A"), a=1, b=4), NoteEvent(M("A"), a=2, b=5)],
             False,
         ),
         (
