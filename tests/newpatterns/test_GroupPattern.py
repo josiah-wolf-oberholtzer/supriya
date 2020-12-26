@@ -26,8 +26,7 @@ from supriya.newpatterns.events import sanitize
                 CompositeEvent(
                     [
                         GroupAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"),
-                            delta=0.0,
+                            UUID("00000000-0000-0000-0000-000000000000"), delta=0.0,
                         ),
                     ]
                 ),
@@ -58,8 +57,7 @@ from supriya.newpatterns.events import sanitize
                 CompositeEvent(
                     [
                         GroupAllocateEvent(
-                            UUID("00000000-0000-0000-0000-000000000000"),
-                            delta=0.0,
+                            UUID("00000000-0000-0000-0000-000000000000"), delta=0.0,
                         ),
                     ]
                 ),
