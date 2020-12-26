@@ -2,7 +2,6 @@ from uuid import UUID
 
 import pytest
 
-from supriya import AddAction
 from supriya.newpatterns import (
     CompositeEvent,
     EventPattern,
