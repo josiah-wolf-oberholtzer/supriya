@@ -11,14 +11,15 @@ from supriya.newpatterns import (
     ParallelPattern,
     SequencePattern,
 )
-from supriya.newpatterns.events import MockUUID as M
-from supriya.newpatterns.events import sanitize
+from supriya.newpatterns.testutils import MockUUID as M
+from supriya.newpatterns.testutils import run_event_pattern_test
 
 
 @pytest.mark.parametrize(
-    "patterns, expected, is_infinite",
+    "stop_at, patterns, expected, is_infinite",
     [
         (
+            None,
             [
                 EventPattern(x=SequencePattern([1, 2, 3]), delta=1.0),
                 EventPattern(y=SequencePattern([1, 2]), delta=1.5),
@@ -33,6 +34,7 @@ from supriya.newpatterns.events import sanitize
             False,
         ),
         (
+            None,
             [
                 GroupPattern(EventPattern(x=SequencePattern([1, 2, 3]), delta=1.0)),
                 GroupPattern(EventPattern(y=SequencePattern([1, 2]), delta=1.5)),
@@ -52,24 +54,6 @@ from supriya.newpatterns.events import sanitize
         ),
     ],
 )
-def test(patterns, expected, is_infinite):
+def test(stop_at, patterns, expected, is_infinite):
     pattern = ParallelPattern(patterns)
-    assert pattern.is_infinite == is_infinite
-    iterator = iter(pattern)
-    actual = []
-    ceased = True
-    for iteration in range(1000):
-        try:
-            event = next(iterator)
-            actual.append(event)
-        except StopIteration:
-            break
-    else:
-        ceased = False
-    if is_infinite:
-        assert not ceased
-        assert sanitize(actual[: len(expected)]) == expected
-    else:
-        for x in sanitize(actual):
-            print(x)
-        assert sanitize(actual) == expected
+    run_event_pattern_test(pattern, expected, is_infinite, stop_at)
