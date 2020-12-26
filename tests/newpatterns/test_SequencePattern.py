@@ -1,35 +1,46 @@
 import pytest
 
 from supriya.newpatterns import SequencePattern
+from supriya.newpatterns.testutils import run_pattern_test
 
 
 @pytest.mark.parametrize(
-    "sequence, iterations, expected, is_infinite",
+    "stop_at, sequence, iterations, expected, is_infinite",
     [
-        ([1, 2, 3], None, [1, 2, 3], True),
-        ([1, 2, 3], 1, [1, 2, 3], False),
-        ([1, 2, 3], 2, [1, 2, 3, 1, 2, 3], False),
-        ([1, 2, 3, SequencePattern(["a", "b"])], 1, [1, 2, 3, "a", "b"], False),
-        ([1, 2, 3, SequencePattern(["a", "b"], None)], 1, [1, 2, 3, "a", "b"], True),
+        (None, [1, 2, 3], None, [1, 2, 3], True),
+        (None, [1, 2, 3], 1, [1, 2, 3], False),
+        (None, [1, 2, 3], 2, [1, 2, 3, 1, 2, 3], False),
+        (None, [1, 2, 3, SequencePattern(["a", "b"])], 1, [1, 2, 3, "a", "b"], False),
         (
+            None,
+            [1, 2, 3, SequencePattern(["a", "b"], None)],
+            1,
+            [1, 2, 3, "a", "b"],
+            True,
+        ),
+        (
+            None,
             [SequencePattern([1, 2, 3]), SequencePattern(["a", "b"])],
             1,
             [1, 2, 3, "a", "b"],
             False,
         ),
         (
+            None,
             [SequencePattern([1, 2, 3]), SequencePattern(["a", "b"])],
             2,
             [1, 2, 3, "a", "b", 1, 2, 3, "a", "b"],
             False,
         ),
         (
+            None,
             [SequencePattern([1, 2, 3], None), SequencePattern(["a", "b"])],
             1,
             [1, 2, 3],
             True,
         ),
         (
+            None,
             [SequencePattern([1, 2, 3], None), SequencePattern(["a", "b"])],
             None,
             [1, 2, 3],
@@ -37,21 +48,6 @@ from supriya.newpatterns import SequencePattern
         ),
     ],
 )
-def test(sequence, iterations, expected, is_infinite):
+def test(stop_at, sequence, iterations, expected, is_infinite):
     pattern = SequencePattern(sequence, iterations=iterations)
-    assert pattern.is_infinite == is_infinite
-    iterator = iter(pattern)
-    actual = []
-    ceased = True
-    for _ in range(1000):
-        try:
-            actual.append(next(iterator))
-        except StopIteration:
-            break
-    else:
-        ceased = False
-    if is_infinite:
-        assert not ceased
-        assert actual[: len(expected)] == expected
-    else:
-        assert actual == expected
+    run_pattern_test(pattern, expected, is_infinite, stop_at)

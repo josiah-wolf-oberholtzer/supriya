@@ -12,7 +12,7 @@ from supriya.newpatterns import (
     SequencePattern,
 )
 from supriya.newpatterns.testutils import MockUUID as M
-from supriya.newpatterns.testutils import run_event_pattern_test
+from supriya.newpatterns.testutils import run_pattern_test
 
 
 @pytest.mark.parametrize(
@@ -56,4 +56,4 @@ from supriya.newpatterns.testutils import run_event_pattern_test
 )
 def test(stop_at, patterns, expected, is_infinite):
     pattern = ParallelPattern(patterns)
-    run_event_pattern_test(pattern, expected, is_infinite, stop_at)
+    run_pattern_test(pattern, expected, is_infinite, stop_at)

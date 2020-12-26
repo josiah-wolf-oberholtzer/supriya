@@ -12,7 +12,7 @@ from supriya.newpatterns import (
     SynthAllocateEvent,
 )
 from supriya.newpatterns.testutils import MockUUID as M
-from supriya.newpatterns.testutils import run_event_pattern_test
+from supriya.newpatterns.testutils import run_pattern_test
 from supriya.synthdefs import SynthDefBuilder
 from supriya.ugens import FreeVerb, In, Out
 
@@ -74,4 +74,4 @@ synthdef = builder.build()
 )
 def test(stop_at, inner_pattern, synthdef, release_time, kwargs, expected, is_infinite):
     pattern = FxPattern(inner_pattern, synthdef, release_time=release_time, **kwargs)
-    run_event_pattern_test(pattern, expected, is_infinite, stop_at)
+    run_pattern_test(pattern, expected, is_infinite, stop_at)

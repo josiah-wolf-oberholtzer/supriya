@@ -16,7 +16,7 @@ from supriya.newpatterns import (
     SynthAllocateEvent,
 )
 from supriya.newpatterns.testutils import MockUUID as M
-from supriya.newpatterns.testutils import run_event_pattern_test
+from supriya.newpatterns.testutils import run_pattern_test
 
 
 @pytest.mark.parametrize(
@@ -183,4 +183,4 @@ def test(
         channel_count=channel_count,
         release_time=release_time,
     )
-    run_event_pattern_test(pattern, expected, is_infinite, stop_at)
+    run_pattern_test(pattern, expected, is_infinite, stop_at)

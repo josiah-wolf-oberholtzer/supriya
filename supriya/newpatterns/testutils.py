@@ -2,7 +2,7 @@ from uuid import UUID
 
 from uqbar.objects import get_repr, get_vars
 
-from .events import CompositeEvent
+from .events import CompositeEvent, Event
 
 
 class MockUUID:
@@ -41,24 +41,28 @@ def sanitize_event(event, cache):
     return type(event)(**sanitize_data)
 
 
-def sanitize(events):
+def sanitize(exprs):
     cache = {}
-    sanitized_events = []
-    for event in events:
-        if isinstance(event, CompositeEvent):
-            sanitized_event = CompositeEvent(
-                events=[
-                    sanitize_event(child_event, cache) for child_event in event.events
-                ],
-                delta=event.delta,
+    sanitized = []
+    for expr in exprs:
+        if isinstance(expr, CompositeEvent):
+            sanitized.append(
+                CompositeEvent(
+                    events=[
+                        sanitize_event(child_event, cache)
+                        for child_event in expr.events
+                    ],
+                    delta=expr.delta,
+                )
             )
+        elif isinstance(expr, Event):
+            sanitized.append(sanitize_event(expr, cache))
         else:
-            sanitized_event = sanitize_event(event, cache)
-        sanitized_events.append(sanitized_event)
-    return sanitized_events
+            sanitized.append(expr)
+    return sanitized
 
 
-def run_event_pattern_test(pattern, expected, is_infinite, stop_at):
+def run_pattern_test(pattern, expected, is_infinite, stop_at):
     assert pattern.is_infinite == is_infinite
     iterator = iter(pattern)
     actual = []
@@ -66,10 +70,10 @@ def run_event_pattern_test(pattern, expected, is_infinite, stop_at):
     for iteration in range(1000):
         try:
             if stop_at == iteration:
-                event = iterator.send(True)
+                expr = iterator.send(True)
             else:
-                event = next(iterator)
-            actual.append(event)
+                expr = next(iterator)
+            actual.append(expr)
         except StopIteration:
             break
     else:

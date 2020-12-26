@@ -1,35 +1,21 @@
 import pytest
 
 from supriya.newpatterns import SequencePattern, UnaryOpPattern
+from supriya.newpatterns.testutils import run_pattern_test
 
 
 @pytest.mark.parametrize(
-    "input_, operator, expected, is_infinite",
+    "stop_at, input_, operator, expected, is_infinite",
     [
-        (1, "-", [-1], True),
-        ([1], "-", [(-1,)], True),
-        ([[1]], "-", [((-1,),)], True),
-        ([[[1]]], "-", [(((-1,),),)], True),
-        ([1, 2], "-", [(-1, -2)], True),
-        (SequencePattern([1, 2, 3]), "-", [-1, -2, -3], False),
-        (SequencePattern([1, 2, 3], None), "-", [-1, -2, -3], True),
+        (None, 1, "-", [-1], True),
+        (None, [1], "-", [(-1,)], True),
+        (None, [[1]], "-", [((-1,),)], True),
+        (None, [[[1]]], "-", [(((-1,),),)], True),
+        (None, [1, 2], "-", [(-1, -2)], True),
+        (None, SequencePattern([1, 2, 3]), "-", [-1, -2, -3], False),
+        (None, SequencePattern([1, 2, 3], None), "-", [-1, -2, -3], True),
     ],
 )
-def test(input_, operator, expected, is_infinite):
+def test(stop_at, input_, operator, expected, is_infinite):
     pattern = UnaryOpPattern(input_, operator)
-    assert pattern.is_infinite == is_infinite
-    iterator = iter(pattern)
-    actual = []
-    ceased = True
-    for _ in range(1000):
-        try:
-            actual.append(next(iterator))
-        except StopIteration:
-            break
-    else:
-        ceased = False
-    if is_infinite:
-        assert not ceased
-        assert actual[: len(expected)] == expected
-    else:
-        assert actual == expected
+    run_pattern_test(pattern, expected, is_infinite, stop_at)

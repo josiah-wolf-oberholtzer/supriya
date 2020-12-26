@@ -7,7 +7,7 @@ from supriya.newpatterns import (
     UpdatePattern,
 )
 from supriya.newpatterns.testutils import MockUUID as M
-from supriya.newpatterns.testutils import run_event_pattern_test
+from supriya.newpatterns.testutils import run_pattern_test
 
 
 @pytest.mark.parametrize(
@@ -51,4 +51,4 @@ from supriya.newpatterns.testutils import run_event_pattern_test
 )
 def test(stop_at, input_a, input_b1, input_b2, input_c, expected, is_infinite):
     pattern = UpdatePattern(EventPattern(a=input_a, b=input_b1), b=input_b2, c=input_c)
-    run_event_pattern_test(pattern, expected, is_infinite, stop_at)
+    run_pattern_test(pattern, expected, is_infinite, stop_at)
