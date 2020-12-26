@@ -76,8 +76,7 @@ def run_event_pattern_test(pattern, expected, is_infinite, stop_at):
         ceased = False
     if is_infinite:
         assert not ceased
-        assert sanitize(actual[: len(expected)]) == expected
+        sanitized_actual = sanitize(actual[: len(expected)])
     else:
-        for x in sanitize(actual):
-            print(x)
-        assert sanitize(actual) == expected
+        sanitized_actual = sanitize(actual)
+    assert sanitized_actual == expected, sanitized_actual
