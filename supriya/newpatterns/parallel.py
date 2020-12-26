@@ -24,7 +24,7 @@ class ParallelPattern(Pattern):
             try:
                 event = next(iterator)
                 event_queue.append((0.0, event))
-                iterator_queue.put((0.0, index, iterator))
+                iterator_queue.put((event.delta, index, iterator))
             except StopIteration:
                 continue
         while iterator_queue.qsize() or len(event_queue):
@@ -40,7 +40,7 @@ class ParallelPattern(Pattern):
                 offset, index, iterator = iterator_queue.get()
                 try:
                     event = iterator.send(should_stop)
-                    event_queue.append((offset + event.delta, event))
+                    event_queue.append((offset, event))
                     iterator_queue.put((offset + event.delta, index, iterator))
                 except StopIteration:
                     pass
