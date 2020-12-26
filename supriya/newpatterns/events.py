@@ -44,7 +44,14 @@ class CompositeEvent(Event):
 
 
 class GroupAllocateEvent(Event):
-    def __init__(self, uuid: UUID, *, add_action=None, delta=0.0, target_node=None):
+    def __init__(
+        self,
+        uuid: UUID,
+        *,
+        add_action=AddAction.ADD_TO_HEAD,
+        delta=0.0,
+        target_node=None,
+    ):
         Event.__init__(self, delta=delta)
         self.uuid = uuid
         self.add_action = AddAction.from_expr(add_action)
@@ -62,7 +69,7 @@ class NoteEvent(Event):
         self,
         uuid: UUID,
         *,
-        add_action=None,
+        add_action=AddAction.ADD_TO_HEAD,
         delta=0.0,
         duration=None,
         synthdef=None,
@@ -96,7 +103,7 @@ class SynthAllocateEvent(Event):
         self,
         uuid: UUID,
         *,
-        add_action=None,
+        add_action=AddAction.ADD_TO_HEAD,
         delta=0.0,
         synthdef=None,
         target_node=None,

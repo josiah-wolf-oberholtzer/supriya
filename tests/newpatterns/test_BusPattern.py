@@ -38,7 +38,6 @@ from supriya.newpatterns.events import sanitize
                         ),
                         GroupAllocateEvent(
                             UUID("00000000-0000-0000-0000-000000000001"),
-                            add_action=AddAction.ADD_TO_HEAD,
                         ),
                         SynthAllocateEvent(
                             UUID("00000000-0000-0000-0000-000000000002"),
@@ -54,14 +53,12 @@ from supriya.newpatterns.events import sanitize
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000003"),
                     a=1,
-                    add_action=AddAction.ADD_TO_HEAD,
                     out=UUID("00000000-0000-0000-0000-000000000000"),
                     target_node=UUID("00000000-0000-0000-0000-000000000001"),
                 ),
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000004"),
                     a=2,
-                    add_action=AddAction.ADD_TO_HEAD,
                     out=UUID("00000000-0000-0000-0000-000000000000"),
                     target_node=UUID("00000000-0000-0000-0000-000000000001"),
                 ),
@@ -90,7 +87,6 @@ from supriya.newpatterns.events import sanitize
                         ),
                         GroupAllocateEvent(
                             UUID("00000000-0000-0000-0000-000000000001"),
-                            add_action=AddAction.ADD_TO_HEAD,
                         ),
                         SynthAllocateEvent(
                             UUID("00000000-0000-0000-0000-000000000002"),
@@ -106,14 +102,12 @@ from supriya.newpatterns.events import sanitize
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000003"),
                     a=1,
-                    add_action=AddAction.ADD_TO_HEAD,
                     out=UUID("00000000-0000-0000-0000-000000000000"),
                     target_node=UUID("00000000-0000-0000-0000-000000000001"),
                 ),
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000004"),
                     a=2,
-                    add_action=AddAction.ADD_TO_HEAD,
                     out=UUID("00000000-0000-0000-0000-000000000000"),
                     target_node=UUID("00000000-0000-0000-0000-000000000001"),
                 ),
@@ -143,7 +137,6 @@ from supriya.newpatterns.events import sanitize
                         ),
                         GroupAllocateEvent(
                             UUID("00000000-0000-0000-0000-000000000001"),
-                            add_action=AddAction.ADD_TO_HEAD,
                         ),
                         SynthAllocateEvent(
                             UUID("00000000-0000-0000-0000-000000000002"),
@@ -165,7 +158,6 @@ from supriya.newpatterns.events import sanitize
                         ),
                         GroupAllocateEvent(
                             UUID("00000000-0000-0000-0000-000000000004"),
-                            add_action=AddAction.ADD_TO_HEAD,
                             target_node=UUID("00000000-0000-0000-0000-000000000001"),
                         ),
                         SynthAllocateEvent(
@@ -183,14 +175,12 @@ from supriya.newpatterns.events import sanitize
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000006"),
                     a=1,
-                    add_action=AddAction.ADD_TO_HEAD,
                     out=UUID("00000000-0000-0000-0000-000000000003"),
                     target_node=UUID("00000000-0000-0000-0000-000000000004"),
                 ),
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000007"),
                     a=2,
-                    add_action=AddAction.ADD_TO_HEAD,
                     out=UUID("00000000-0000-0000-0000-000000000003"),
                     target_node=UUID("00000000-0000-0000-0000-000000000004"),
                 ),

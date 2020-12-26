@@ -46,12 +46,10 @@ synthdef = builder.build()
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000001"),
                     a=1,
-                    add_action=AddAction.ADD_TO_HEAD,
                 ),
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000002"),
                     a=2,
-                    add_action=AddAction.ADD_TO_HEAD,
                 ),
                 CompositeEvent(
                     [NodeFreeEvent(UUID("00000000-0000-0000-0000-000000000000"))]
@@ -78,12 +76,10 @@ synthdef = builder.build()
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000001"),
                     a=1,
-                    add_action=AddAction.ADD_TO_HEAD,
                 ),
                 NoteEvent(
                     UUID("00000000-0000-0000-0000-000000000002"),
                     a=2,
-                    add_action=AddAction.ADD_TO_HEAD,
                 ),
                 CompositeEvent(
                     [
