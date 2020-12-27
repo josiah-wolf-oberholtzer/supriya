@@ -1,5 +1,4 @@
-from collections import deque
-from queue import PriorityQueue
+import bisect
 from uuid import uuid4
 
 from uqbar.objects import get_vars, new
@@ -178,33 +177,38 @@ class ParallelPattern(Pattern):
 
     def _iterate(self, state=None):
         should_stop = False
-        event_queue = deque()
-        iterator_queue = PriorityQueue()
+        iterators = []
         for index, pattern in enumerate(self._patterns):
-            iterator = iter(pattern)
-            try:
-                event = next(iterator)
-                event_queue.append((0.0, event))
-                iterator_queue.put((event.delta, index, iterator))
-            except StopIteration:
-                continue
-        while iterator_queue.qsize() or len(event_queue):
-            if len(event_queue) == 1:
-                _, event = event_queue.popleft()
-                should_stop = yield event
-            elif len(event_queue) > 1:
-                offset_one, event_one = event_queue.popleft()
-                offset_two, event_two = event_queue.popleft()
-                event_queue.appendleft((offset_two, event_two))
-                should_stop = yield new(event_one, delta=offset_two - offset_one)
-            if iterator_queue.qsize():
-                offset, index, iterator = iterator_queue.get()
+            iterators.append((0.0, index, iter(pattern)))
+        while iterators:
+            grouping_offset = iterators[0][0]
+            events = []
+            while iterators and iterators[0][0] == grouping_offset:
+                offset, index, iterator = iterators.pop(0)
                 try:
-                    event = iterator.send(should_stop)
-                    event_queue.append((offset, event))
-                    iterator_queue.put((offset + event.delta, index, iterator))
+                    if should_stop:
+                        event = iterator.send(should_stop)
+                    else:
+                        event = next(iterator)
+                    events.append(event)
+                    triple = (offset + event.delta, index, iterator)
+                    insert_index = bisect.bisect_left(iterators, triple)
+                    iterators.insert(insert_index, triple)
                 except StopIteration:
                     pass
+            if events:
+                if iterators:
+                    delta = iterators[0][0] - grouping_offset
+                else:
+                    delta = max(event.delta for event in events)
+                if len(events) == 1:
+                    sent = yield new(events[0], delta=delta)
+                elif len(events) > 1:
+                    sent = yield CompositeEvent(
+                        [new(x, delta=0.0) for x in events], delta=delta,
+                    )
+                if sent:
+                    should_stop = True
 
     ### PUBLIC PROPERTIES ###
 

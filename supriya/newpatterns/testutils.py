@@ -1,6 +1,7 @@
+from difflib import unified_diff
 from uuid import UUID
 
-from uqbar.objects import get_repr, get_vars
+from uqbar.objects import get_repr, get_vars, new
 
 from .events import CompositeEvent, Event
 
@@ -28,6 +29,8 @@ def sanitize_uuid(uuid, cache):
 
 
 def sanitize_event(event, cache):
+    if isinstance(event, CompositeEvent):
+        return new(event, events=[sanitize_event(x, cache) for x in event.events],)
     sanitize_data = {}
     args, _, kwargs = get_vars(event)
     for key, value in args.items():
@@ -45,17 +48,7 @@ def sanitize(exprs):
     cache = {}
     sanitized = []
     for expr in exprs:
-        if isinstance(expr, CompositeEvent):
-            sanitized.append(
-                CompositeEvent(
-                    events=[
-                        sanitize_event(child_event, cache)
-                        for child_event in expr.events
-                    ],
-                    delta=expr.delta,
-                )
-            )
-        elif isinstance(expr, Event):
+        if isinstance(expr, Event):
             sanitized.append(sanitize_event(expr, cache))
         else:
             sanitized.append(expr)
@@ -83,4 +76,8 @@ def run_pattern_test(pattern, expected, is_infinite, stop_at):
         sanitized_actual = sanitize(actual[: len(expected)])
     else:
         sanitized_actual = sanitize(actual)
+    expected_string = "\n".join(repr(x) for x in expected)
+    actual_string = "\n".join(repr(x) for x in sanitized_actual)
+    for line in unified_diff(expected_string.splitlines(), actual_string.splitlines()):
+        print(line)
     assert sanitized_actual == expected, sanitized_actual
