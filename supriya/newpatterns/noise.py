@@ -12,10 +12,10 @@ class ChoicePattern(SequencePattern):
         self._weights = weights or None
 
     def _iterate(self, state=None):
+        should_stop = False
         rng = self._get_rng()
         previous_index = None
         for _ in self._loop(self._iterations):
-            # TODO: Integrate weights
             if self.weights:
                 index = self._find_index_weighted(rng)
                 while self.forbid_repetitions and index == previous_index:
@@ -27,9 +27,11 @@ class ChoicePattern(SequencePattern):
             previous_index = index
             choice = self._sequence[index]
             if isinstance(choice, Pattern):
-                yield from choice
+                should_stop = (yield from choice) or should_stop
             else:
-                yield choice
+                should_stop = (yield choice) or should_stop
+            if should_stop:
+                return
 
     def _find_index_unweighted(self, rng):
         return int(next(rng) * 0x7FFFFFFF) % len(self._sequence)
@@ -107,6 +109,7 @@ class ShufflePattern(SequencePattern):
         self._forbid_repetitions = bool(forbid_repetitions)
 
     def _iterate(self, state=None):
+        should_stop = False
         rng = self._get_rng()
         previous_index = None
         for _ in self._loop(self._iterations):
@@ -121,9 +124,11 @@ class ShufflePattern(SequencePattern):
             for index in indices:
                 choice = self._sequence[index]
                 if isinstance(choice, Pattern):
-                    yield from choice
+                    should_stop = (yield from choice) or should_stop
                 else:
-                    yield choice
+                    should_stop = (yield choice) or should_stop
+                if should_stop:
+                    return
 
     def _shuffle(self, length, rng, previous_index=None):
         indices = list(range(length))
