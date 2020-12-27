@@ -57,9 +57,9 @@ class BusPattern(Pattern):
             BusAllocateEvent(
                 calculation_rate=self._calculation_rate,
                 channel_count=self._channel_count,
-                uuid=state["bus"],
+                id_=state["bus"],
             ),
-            GroupAllocateEvent(uuid=state["group"]),
+            GroupAllocateEvent(id_=state["group"]),
             SynthAllocateEvent(
                 add_action="ADD_AFTER",
                 amplitude=1.0,
@@ -67,13 +67,13 @@ class BusPattern(Pattern):
                 in_=state["bus"],
                 synthdef=getattr(synthdefs, link_synthdef_name),
                 target_node=state["group"],
-                uuid=state["link"],
+                id_=state["link"],
             ),
         ]
         stops = [
-            NodeFreeEvent(uuid=state["link"]),
-            NodeFreeEvent(uuid=state["group"]),
-            BusFreeEvent(uuid=state["bus"]),
+            NodeFreeEvent(id_=state["link"]),
+            NodeFreeEvent(id_=state["group"]),
+            BusFreeEvent(id_=state["bus"]),
         ]
         if self._release_time:
             stops.insert(1, NullEvent(delta=self._release_time))
@@ -109,11 +109,11 @@ class FxPattern(Pattern):
             SynthAllocateEvent(
                 add_action="ADD_TO_TAIL",
                 synthdef=self._synthdef,
-                uuid=state["synth"],
+                id_=state["synth"],
                 **self._kwargs,
             )
         ]
-        stops = [NodeFreeEvent(uuid=state["synth"])]
+        stops = [NodeFreeEvent(id_=state["synth"])]
         if self._release_time:
             stops.insert(0, NullEvent(delta=self._release_time))
         return CompositeEvent(starts), CompositeEvent(stops)
@@ -150,8 +150,8 @@ class GroupPattern(Pattern):
         return iter(self._pattern)
 
     def _setup_peripherals(self, state):
-        starts = [GroupAllocateEvent(add_action="ADD_TO_HEAD", uuid=state["group"])]
-        stops = [NodeFreeEvent(uuid=state["group"])]
+        starts = [GroupAllocateEvent(add_action="ADD_TO_HEAD", id_=state["group"])]
+        stops = [NodeFreeEvent(id_=state["group"])]
         if self._release_time:
             stops.insert(0, NullEvent(delta=self._release_time))
         return CompositeEvent(starts), CompositeEvent(stops)

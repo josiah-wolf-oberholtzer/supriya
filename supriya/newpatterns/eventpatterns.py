@@ -49,7 +49,7 @@ class MonoEventPattern(EventPattern):
     """
 
     def _iterate(self, state=None):
-        uuid = uuid4()
+        id_ = uuid4()
         patterns = self._prepare_patterns()
         iterator_pairs = sorted(patterns.items())
         while True:
@@ -59,7 +59,7 @@ class MonoEventPattern(EventPattern):
                     event[key] = next(pattern)
                 except StopIteration:
                     return
-            if (yield NoteEvent(uuid, **event)):
+            if (yield NoteEvent(id_, **event)):
                 return
 
     @property

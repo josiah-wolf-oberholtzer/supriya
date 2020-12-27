@@ -22,10 +22,10 @@ class MockUUID:
         return get_repr(self, multiline=False)
 
 
-def sanitize_uuid(uuid, cache):
-    if uuid not in cache:
-        cache[uuid] = MockUUID(chr(len(cache) + 65))
-    return cache[uuid]
+def sanitize_id(id_, cache):
+    if id_ not in cache:
+        cache[id_] = MockUUID(chr(len(cache) + 65))
+    return cache[id_]
 
 
 def sanitize_event(event, cache):
@@ -35,11 +35,11 @@ def sanitize_event(event, cache):
     args, _, kwargs = get_vars(event)
     for key, value in args.items():
         if isinstance(value, UUID):
-            value = sanitize_uuid(value, cache)
+            value = sanitize_id(value, cache)
         sanitize_data[key] = value
     for key, value in sorted(kwargs.items()):
         if isinstance(value, UUID):
-            value = sanitize_uuid(value, cache)
+            value = sanitize_id(value, cache)
         sanitize_data[key] = value
     return type(event)(**sanitize_data)
 

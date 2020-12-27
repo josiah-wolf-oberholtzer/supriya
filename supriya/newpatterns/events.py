@@ -1,6 +1,4 @@
-from uuid import UUID
-
-from uqbar.objects import get_repr, get_vars
+from uqbar.objects import get_repr, get_vars, new
 
 from supriya.enums import AddAction, CalculationRate
 
@@ -20,21 +18,30 @@ class Event:
     def __repr__(self):
         return get_repr(self, multiline=False)
 
+    def perform(self, provider, mapping):
+        pass
+
 
 class BusAllocateEvent(Event):
-    def __init__(
-        self, uuid: UUID, *, calculation_rate="audio", channel_count=1, delta=0.0
-    ):
+    def __init__(self, id_, *, calculation_rate="audio", channel_count=1, delta=0.0):
         Event.__init__(self, delta=delta)
-        self.uuid = uuid
+        self.id_ = id_
         self.calculation_rate = CalculationRate.from_expr(calculation_rate)
         self.channel_count = channel_count
 
+    def perform(self, provider, mapping):
+        mapping[self.id_] = provider.add_bus_group(
+            calculation_rate=self.calculation_rate, channel_count=self.channel_count,
+        )
+
 
 class BusFreeEvent(Event):
-    def __init__(self, uuid: UUID, *, delta=0.0):
+    def __init__(self, id_, *, delta=0.0):
         Event.__init__(self, delta=delta)
-        self.uuid = uuid
+        self.id_ = id_
+
+    def perform(self, provider, mapping):
+        mapping[self.id_].free()
 
 
 class CompositeEvent(Event):
@@ -45,29 +52,32 @@ class CompositeEvent(Event):
 
 class GroupAllocateEvent(Event):
     def __init__(
-        self,
-        uuid: UUID,
-        *,
-        add_action=AddAction.ADD_TO_HEAD,
-        delta=0.0,
-        target_node=None,
+        self, id_, *, add_action=AddAction.ADD_TO_HEAD, delta=0.0, target_node=None,
     ):
         Event.__init__(self, delta=delta)
-        self.uuid = uuid
+        self.id_ = id_
         self.add_action = AddAction.from_expr(add_action)
         self.target_node = target_node
 
+    def perform(self, provider, mapping):
+        mapping[self.id_] = provider.add_group(
+            add_action=self.add_action, target_node=mapping.get(self.target_node),
+        )
+
 
 class NodeFreeEvent(Event):
-    def __init__(self, uuid: UUID, *, delta=0.0):
+    def __init__(self, id_, *, delta=0.0):
         Event.__init__(self, delta=delta)
-        self.uuid = uuid
+        self.id_ = id_
+
+    def perform(self, provider, mapping):
+        mapping[self.id_].free()
 
 
 class NoteEvent(Event):
     def __init__(
         self,
-        uuid: UUID,
+        id_,
         *,
         add_action=AddAction.ADD_TO_HEAD,
         delta=0.0,
@@ -77,21 +87,27 @@ class NoteEvent(Event):
         **kwargs,
     ):
         Event.__init__(self, delta=delta)
-        self.uuid = uuid
+        self.id_ = id_
         self.add_action = AddAction.from_expr(add_action)
         self.duration = duration
         self.synthdef = synthdef
         self.target_node = target_node
         self.kwargs = kwargs
 
+    def expand(self):
+        pass
+
     def merge(self, event):
-        kwargs = self.kwargs.copy()
-        kwargs.update(event.kwargs)
-        if event.delta is not None:
-            kwargs["delta"] = event.delta
-        if event.uuid is not None:
-            kwargs["uuid"] = event.uuid
-        return type(self)(**kwargs)
+        _, _, kwargs = get_vars(event)
+        return new(self, **kwargs)
+
+    def perform(self, provider, mapping):
+        mapping[self.id_] = provider.add_synth(
+            add_action=self.add_action,
+            synthdef=self.synthdef,
+            target_node=mapping.get(self.target_node),
+            **self.kwargs,
+        )
 
 
 class NullEvent(Event):
@@ -101,7 +117,7 @@ class NullEvent(Event):
 class SynthAllocateEvent(Event):
     def __init__(
         self,
-        uuid: UUID,
+        id_,
         *,
         add_action=AddAction.ADD_TO_HEAD,
         delta=0.0,
@@ -110,8 +126,16 @@ class SynthAllocateEvent(Event):
         **kwargs,
     ):
         Event.__init__(self, delta=delta)
-        self.uuid = uuid
+        self.id_ = id_
         self.add_action = AddAction.from_expr(add_action)
         self.synthdef = synthdef
         self.target_node = target_node
         self.kwargs = kwargs
+
+    def perform(self, provider, mapping):
+        mapping[self.id_] = provider.add_synth(
+            add_action=self.add_action,
+            synthdef=self.synthdef,
+            target_node=mapping.get(self.target_node),
+            **self.kwargs,
+        )
