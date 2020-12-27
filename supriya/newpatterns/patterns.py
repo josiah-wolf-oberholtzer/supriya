@@ -42,9 +42,13 @@ class Pattern(metaclass=abc.ABCMeta):
             return
         start_event, stop_event = self._setup_peripherals(state)
         if start_event:
-            should_stop = yield start_event
+            sent = yield start_event
+            if sent:
+                should_stop = True
         if not should_stop:
-            should_stop = yield expr
+            sent = yield expr
+            if sent:
+                should_stop = True
             while True:  # Exhaust iterator, even if scheduled to stop
                 try:
                     expr = self._adjust_recursive(
