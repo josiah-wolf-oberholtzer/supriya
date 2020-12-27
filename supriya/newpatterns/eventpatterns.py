@@ -24,8 +24,7 @@ class EventPattern(Pattern):
                     event[key] = next(pattern)
                 except StopIteration:
                     return
-            should_stop = yield NoteEvent(uuid4(), **event)
-            if should_stop:
+            if (yield NoteEvent(uuid4(), **event)):
                 return
 
     def _prepare_patterns(self):
@@ -60,8 +59,7 @@ class MonoEventPattern(EventPattern):
                     event[key] = next(pattern)
                 except StopIteration:
                     return
-            should_stop = yield NoteEvent(uuid, **event)
-            if should_stop:
+            if (yield NoteEvent(uuid, **event)):
                 return
 
     @property
@@ -96,8 +94,7 @@ class UpdatePattern(Pattern):
                 except StopIteration:
                     return
             event = new(event, **template_dict)
-            should_stop = yield event
-            if should_stop:
+            if (yield event):
                 return
 
     def _prepare_patterns(self):
@@ -136,8 +133,7 @@ class ChainPattern(Pattern):
                     event = event.merge(next(pattern))
                 except StopIteration:
                     return
-            should_stop = yield event
-            if should_stop:
+            if (yield event):
                 return
 
     @property

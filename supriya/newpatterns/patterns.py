@@ -42,19 +42,15 @@ class Pattern(metaclass=abc.ABCMeta):
             return
         start_event, stop_event = self._setup_peripherals(state)
         if start_event:
-            sent = yield start_event
-            if sent:
-                should_stop = True
+            should_stop = (yield start_event) or should_stop
         if not should_stop:
-            sent = yield expr
-            if sent:
-                should_stop = True
+            should_stop = (yield expr) or should_stop
             while True:  # Exhaust iterator, even if scheduled to stop
                 try:
                     expr = self._adjust_recursive(
                         iterator.send(should_stop), state=state
                     )
-                    should_stop = yield expr
+                    should_stop = (yield expr) or should_stop
                 except StopIteration:
                     break
         if stop_event:
@@ -345,15 +341,15 @@ class SequencePattern(Pattern):
         for _ in self._loop(self._iterations):
             for x in self._sequence:
                 if not isinstance(x, Pattern):
-                    should_stop = yield x
+                    should_stop = (yield x) or should_stop
                 else:
                     iterator = iter(x)
                     try:
                         y = next(iterator)
-                        should_stop = yield y
+                        should_stop = (yield y) or should_stop
                         while True:
                             y = iterator.send(should_stop)
-                            should_stop = yield y
+                            should_stop = (yield y) or should_stop
                     except StopIteration:
                         pass
                 if should_stop:
