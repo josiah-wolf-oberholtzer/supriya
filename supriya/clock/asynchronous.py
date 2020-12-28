@@ -10,6 +10,7 @@ from .ephemera import (
     CallbackEvent,
     ChangeCommand,
     ChangeEvent,
+    ClockContext,
     ClockState,
     EventType,
     Moment,
@@ -50,14 +51,11 @@ class AsyncTempoClock(BaseTempoClock):
             f"{desired_moment.seconds - self._state.initial_seconds}:s / "
             f"{desired_moment.offset}:o"
         )
+        context = ClockContext(current_moment, desired_moment, event)
+        args = event.args or ()
+        kwargs = event.kwargs or {}
         try:
-            result = event.procedure(
-                current_moment,
-                desired_moment,
-                event,
-                *(event.args or ()),
-                **(event.kwargs or {}),
-            )
+            result = event.procedure(context, *args, **kwargs)
             if asyncio.iscoroutine(result):
                 result = await result
         except Exception:
