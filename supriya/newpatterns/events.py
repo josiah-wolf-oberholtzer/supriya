@@ -1,6 +1,17 @@
+import enum
+from typing import Optional
+from uuid import UUID
+
 from uqbar.objects import get_repr, get_vars, new
 
 from supriya.enums import AddAction, CalculationRate
+from supriya.synthdefs import SynthDef
+from supriya.utils import expand
+
+
+class Priority(enum.IntEnum):
+    START = 1
+    STOP = 2
 
 
 class Event:
@@ -18,7 +29,12 @@ class Event:
     def __repr__(self):
         return get_repr(self, multiline=False)
 
-    def perform(self, provider, mapping):
+    def expand(self, offset):
+        return [
+            (offset, Priority.START, self),
+        ]
+
+    def perform(self, provider, mapping, priority):
         pass
 
 
@@ -80,10 +96,10 @@ class NoteEvent(Event):
         id_,
         *,
         add_action=AddAction.ADD_TO_HEAD,
-        delta=0.0,
-        duration=None,
-        synthdef=None,
-        target_node=None,
+        delta: float = 0.0,
+        duration: float = None,
+        synthdef: Optional[SynthDef] = None,
+        target_node: Optional[UUID] = None,
         **kwargs,
     ):
         Event.__init__(self, delta=delta)
@@ -94,8 +110,22 @@ class NoteEvent(Event):
         self.target_node = target_node
         self.kwargs = kwargs
 
-    def expand(self):
-        pass
+    def expand(self, offset: float):
+        expanded = []
+        for i, mapping in enumerate(expand(self.kwargs)):
+            event = type(self)(
+                id_=(self.id_, i),
+                add_action=self.add_action,
+                duration=self.duration,
+                synthdef=self.synthdef,
+                target_node=self.target_node,
+                **mapping,
+            )
+            start_offset = offset
+            stop_offset = offset + (self.duration or 0.0)
+            expanded.append((start_offset, Priority.START, event))
+            expanded.append((stop_offset, Priority.STOP, event))
+        return expanded
 
     def merge(self, event):
         _, _, kwargs = get_vars(event)

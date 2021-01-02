@@ -34,7 +34,6 @@ class TempoClock(BaseTempoClock):
     ### SCHEDULING METHODS ###
 
     def _cancel(self, event_id) -> Optional[Tuple]:
-        # TODO: Can this be lock-free?
         event = self._events_by_id.pop(event_id, None)
         if event is not None and not isinstance(
             event, (CallbackCommand, ChangeCommand)
