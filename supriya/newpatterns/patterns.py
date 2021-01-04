@@ -9,7 +9,13 @@ import random
 from collections.abc import Sequence
 from typing import Dict, Iterator, Optional
 
+from supriya.clock import TempoClock
+from supriya.exceptions import ServerOffline
+from supriya.provider import Provider
+from supriya.realtime import Server
+
 from .events import CompositeEvent
+from .players import RealtimePatternPlayer
 
 
 class Pattern(metaclass=abc.ABCMeta):
@@ -172,6 +178,20 @@ class Pattern(metaclass=abc.ABCMeta):
 
     def _setup_peripherals(self, state):
         return None, None
+
+    ### PUBLIC METHODS ###
+
+    def play(self, server=None, clock=None, quantization=None):
+        server = server or Server.default()
+        if not server.is_running:
+            raise ServerOffline
+        player = RealtimePatternPlayer(
+            pattern=self,
+            provider=Provider.from_context(server or Server.default()),
+            clock=clock or TempoClock.default(),
+        )
+        player.play(quantization=quantization)
+        return player
 
     ### PUBLIC PROPERTIES ###
 
