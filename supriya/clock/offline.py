@@ -3,7 +3,7 @@ import queue
 from typing import Optional, Tuple
 
 from .bases import BaseTempoClock
-from .ephemera import CallbackCommand, ChangeCommand, Moment
+from .ephemera import Moment
 
 logger = logging.getLogger("supriya.clock")
 
