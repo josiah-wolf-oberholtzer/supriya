@@ -131,13 +131,13 @@ class AsyncTempoClock(BaseTempoClock):
 
     ### PUBLIC METHODS ###
 
-    async def cancel(self, event_id) -> Optional[Tuple]:
+    def cancel(self, event_id) -> Optional[Tuple]:
         logger.debug(f"[{self.name}] Canceling {event_id}")
         event_id = self._cancel(event_id)
         self._event.set()
         return event_id
 
-    async def change(
+    def change(
         self,
         beats_per_minute: Optional[float] = None,
         time_signature: Optional[Tuple[int, int]] = None,
@@ -146,7 +146,7 @@ class AsyncTempoClock(BaseTempoClock):
             beats_per_minute=beats_per_minute, time_signature=time_signature,
         )
 
-    async def cue(
+    def cue(
         self,
         procedure,
         *,
@@ -163,7 +163,7 @@ class AsyncTempoClock(BaseTempoClock):
             quantization=quantization,
         )
 
-    async def cue_change(
+    def cue_change(
         self,
         *,
         beats_per_minute: Optional[float] = None,
@@ -176,10 +176,10 @@ class AsyncTempoClock(BaseTempoClock):
             quantization=quantization,
         )
 
-    async def reschedule(
+    def reschedule(
         self, event_id, *, schedule_at=0.0, time_unit=TimeUnit.BEATS
     ) -> Optional[int]:
-        if (event_or_command := await self.cancel(event_id)) is None:
+        if (event_or_command := self.cancel(event_id)) is None:
             return None
         command = self._reschedule(
             event_or_command, schedule_at=schedule_at, time_unit=time_unit,
@@ -187,7 +187,7 @@ class AsyncTempoClock(BaseTempoClock):
         self._enqueue_command(command)
         return event_id
 
-    async def schedule(
+    def schedule(
         self,
         procedure,
         *,
@@ -206,7 +206,7 @@ class AsyncTempoClock(BaseTempoClock):
             kwargs=kwargs,
         )
 
-    async def schedule_change(
+    def schedule_change(
         self,
         *,
         beats_per_minute: Optional[float] = None,
