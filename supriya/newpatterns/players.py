@@ -36,32 +36,37 @@ class RealtimePatternPlayer:
                     self._perform_events(current_offset, events)
                     return delta
                 if not isinstance(event, Event):
-                    try:
-                        try:
-                            index, consumed_event = self._iterator.send(
-                                self._is_stopping
-                            )
-                        except TypeError:
-                            if self._is_stopping:
-                                return
-                            index, consumed_event = next(self._iterator)
-                        for (
-                            expanded_offset,
-                            priority,
-                            expanded_event,
-                        ) in consumed_event.expand(context.desired_moment.offset):
-                            self._queue.put(
-                                (expanded_offset, priority, index, expanded_event)
-                            )
-                        self._queue.put((offset + consumed_event.delta, 0, index, None))
-                    except StopIteration:
-                        pass
+                    if self._consume_iterator(offset):
+                        return
                 elif offset != current_offset:
                     self._perform_events(current_offset, events)
                     current_offset = offset
                     events = [(event, priority)]
                 else:
                     events.append((event, priority))
+
+    def _consume_iterator(self, current_offset):
+        try:
+            try:
+                index, consumed_event = self._iterator.send(
+                    self._is_stopping
+                )
+            except TypeError:
+                if self._is_stopping:
+                    return True
+                index, consumed_event = next(self._iterator)
+            for (
+                expanded_offset,
+                priority,
+                expanded_event,
+            ) in consumed_event.expand(current_offset):
+                self._queue.put(
+                    (expanded_offset, priority, index, expanded_event)
+                )
+            self._queue.put((current_offset + consumed_event.delta, 0, index, None))
+        except StopIteration:
+            pass
+        return False
 
     def _stop_callback(self, context, *args, **kwargs):
         with self._lock:
