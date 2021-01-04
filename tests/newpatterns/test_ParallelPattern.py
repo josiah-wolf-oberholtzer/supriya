@@ -26,7 +26,11 @@ from supriya.newpatterns.testutils import run_pattern_test
             ],
             [
                 CompositeEvent(
-                    [NoteEvent(M("A"), x=1), NoteEvent(M("B"), y=1)], delta=1.0
+                    [
+                        NoteEvent(M("A"), delta=0.0, x=1),
+                        NoteEvent(M("B"), delta=0.0, y=1),
+                    ],
+                    delta=1.0,
                 ),
                 NoteEvent(M("C"), delta=0.5, x=2),
                 NoteEvent(M("D"), delta=0.5, y=2),
@@ -42,7 +46,11 @@ from supriya.newpatterns.testutils import run_pattern_test
             ],
             [
                 CompositeEvent(
-                    [NoteEvent(M("A"), x=1), NoteEvent(M("B"), y=1)], delta=1.0
+                    [
+                        NoteEvent(M("A"), delta=0.0, x=1),
+                        NoteEvent(M("B"), delta=0.0, y=1),
+                    ],
+                    delta=1.0,
                 ),
             ],
             False,
@@ -57,9 +65,9 @@ from supriya.newpatterns.testutils import run_pattern_test
                 CompositeEvent(
                     [
                         CompositeEvent([GroupAllocateEvent(M("A"))]),
-                        NoteEvent(M("B"), target_node=M("A"), x=1,),
+                        NoteEvent(M("B"), delta=0.0, target_node=M("A"), x=1,),
                         CompositeEvent([GroupAllocateEvent(M("C"))]),
-                        NoteEvent(M("D"), target_node=M("C"), y=1,),
+                        NoteEvent(M("D"), delta=0.0, target_node=M("C"), y=1,),
                     ],
                     delta=1.0,
                 ),
@@ -85,9 +93,9 @@ from supriya.newpatterns.testutils import run_pattern_test
                 CompositeEvent(
                     [
                         CompositeEvent([GroupAllocateEvent(M("A"))]),
-                        NoteEvent(M("B"), target_node=M("A"), x=1,),
+                        NoteEvent(M("B"), delta=0.0, target_node=M("A"), x=1,),
                         CompositeEvent([GroupAllocateEvent(M("C"))]),
-                        NoteEvent(M("D"), target_node=M("C"), y=1,),
+                        NoteEvent(M("D"), delta=0.0, target_node=M("C"), y=1,),
                     ],
                     delta=1.0,
                 ),

@@ -48,21 +48,15 @@ class RealtimePatternPlayer:
     def _consume_iterator(self, current_offset):
         try:
             try:
-                index, consumed_event = self._iterator.send(
-                    self._is_stopping
-                )
+                index, consumed_event = self._iterator.send(self._is_stopping)
             except TypeError:
                 if self._is_stopping:
                     return True
                 index, consumed_event = next(self._iterator)
-            for (
-                expanded_offset,
-                priority,
-                expanded_event,
-            ) in consumed_event.expand(current_offset):
-                self._queue.put(
-                    (expanded_offset, priority, index, expanded_event)
-                )
+            for (expanded_offset, priority, expanded_event,) in consumed_event.expand(
+                current_offset
+            ):
+                self._queue.put((expanded_offset, priority, index, expanded_event))
             self._queue.put((current_offset + consumed_event.delta, 0, index, None))
         except StopIteration:
             pass
