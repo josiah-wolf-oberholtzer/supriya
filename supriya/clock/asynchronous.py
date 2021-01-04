@@ -5,7 +5,7 @@ import traceback
 from typing import Optional, Tuple
 
 from .bases import BaseTempoClock
-from .ephemera import ClockContext, EventType, Moment, TimeUnit
+from .ephemera import ClockContext, EventType, Moment
 
 logger = logging.getLogger("supriya.clock")
 
@@ -132,94 +132,9 @@ class AsyncTempoClock(BaseTempoClock):
     ### PUBLIC METHODS ###
 
     def cancel(self, event_id) -> Optional[Tuple]:
-        logger.debug(f"[{self.name}] Canceling {event_id}")
-        event_id = self._cancel(event_id)
+        event_id = super().cancel(event_id)
         self._event.set()
         return event_id
-
-    def change(
-        self,
-        beats_per_minute: Optional[float] = None,
-        time_signature: Optional[Tuple[int, int]] = None,
-    ) -> Optional[int]:
-        return self._change(
-            beats_per_minute=beats_per_minute, time_signature=time_signature,
-        )
-
-    def cue(
-        self,
-        procedure,
-        *,
-        args=None,
-        event_type: EventType = EventType.SCHEDULE,
-        kwargs=None,
-        quantization: str = None,
-    ) -> int:
-        return self._cue(
-            procedure,
-            args=args,
-            event_type=event_type,
-            kwargs=kwargs,
-            quantization=quantization,
-        )
-
-    def cue_change(
-        self,
-        *,
-        beats_per_minute: Optional[float] = None,
-        quantization: str = None,
-        time_signature: Optional[Tuple[int, int]] = None,
-    ) -> int:
-        return self._cue_change(
-            beats_per_minute=beats_per_minute,
-            time_signature=time_signature,
-            quantization=quantization,
-        )
-
-    def reschedule(
-        self, event_id, *, schedule_at=0.0, time_unit=TimeUnit.BEATS
-    ) -> Optional[int]:
-        if (event_or_command := self.cancel(event_id)) is None:
-            return None
-        command = self._reschedule(
-            event_or_command, schedule_at=schedule_at, time_unit=time_unit,
-        )
-        self._enqueue_command(command)
-        return event_id
-
-    def schedule(
-        self,
-        procedure,
-        *,
-        event_type: EventType = EventType.SCHEDULE,
-        schedule_at: float = 0.0,
-        time_unit: TimeUnit = TimeUnit.BEATS,
-        args=None,
-        kwargs=None,
-    ) -> int:
-        return self._schedule(
-            procedure,
-            event_type=event_type,
-            schedule_at=schedule_at,
-            time_unit=time_unit,
-            args=args,
-            kwargs=kwargs,
-        )
-
-    def schedule_change(
-        self,
-        *,
-        beats_per_minute: Optional[float] = None,
-        schedule_at: float = 0.0,
-        time_signature: Optional[Tuple[int, int]] = None,
-        time_unit: TimeUnit = TimeUnit.BEATS,
-    ) -> int:
-        return self._schedule_change(
-            beats_per_minute=beats_per_minute,
-            schedule_at=schedule_at,
-            time_signature=time_signature,
-            time_unit=time_unit,
-        )
 
     async def start(
         self,
