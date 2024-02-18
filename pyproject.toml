@@ -107,7 +107,7 @@ profile = "black"
 skip = "supriya/__init__.py"
 
 [tool.mypy]
-ignore_missing_imports = true
+ignore_missing_imports = false
 plugins = [
     "supriya.ext.mypy",
 ]
