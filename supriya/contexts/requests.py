@@ -34,8 +34,8 @@ from ..typing import AddActionLike, HeaderFormatLike, SampleFormatLike, Supports
 from .responses import Response
 
 if TYPE_CHECKING:
-    from .contexts.core import Context
-    from .contexts.realtime import AsyncServer, Server
+    from .core import Context
+    from .realtime import AsyncServer, Server
 
 
 logger = logging.getLogger(__name__)
