@@ -1,3 +1,5 @@
+from typing import List
+
 from uqbar.objects import get_repr
 
 from .. import utils
@@ -55,7 +57,7 @@ class Envelope:
         peak=1.0,
         curve=-4.0,
         bias=0.0,
-    ):
+    ) -> "Envelope":
         amplitudes = [x + bias for x in [0, peak, peak * sustain, 0]]
         durations = [attack_time, decay_time, release_time]
         curves = [curve]
@@ -68,7 +70,9 @@ class Envelope:
         )
 
     @classmethod
-    def asr(cls, attack_time=0.01, sustain=1.0, release_time=1.0, curve=-4.0):
+    def asr(
+        cls, attack_time=0.01, sustain=1.0, release_time=1.0, curve=-4.0
+    ) -> "Envelope":
         amplitudes = [0, sustain, 0]
         durations = [attack_time, release_time]
         curves = [curve]
@@ -88,7 +92,7 @@ class Envelope:
         release_node=None,
         loop_node=None,
         offset=None,
-    ):
+    ) -> "Envelope":
         amplitudes = [initial_amplitude]
         durations = []
         curves = []
@@ -106,7 +110,9 @@ class Envelope:
         )
 
     @classmethod
-    def percussive(cls, attack_time=0.01, release_time=1.0, amplitude=1.0, curve=-4.0):
+    def percussive(
+        cls, attack_time=0.01, release_time=1.0, amplitude=1.0, curve=-4.0
+    ) -> "Envelope":
         """
         Make a percussion envelope.
 
@@ -133,13 +139,13 @@ class Envelope:
     @classmethod
     def linen(
         cls, attack_time=0.01, sustain_time=1.0, release_time=1.0, level=1.0, curve=1
-    ):
+    ) -> "Envelope":
         amplitudes = [0, level, level, 0]
         durations = [attack_time, sustain_time, release_time]
         curves = [curve]
         return Envelope(amplitudes=amplitudes, durations=durations, curves=curves)
 
-    def serialize(self, for_interpolation=False):
+    def serialize(self, for_interpolation=False) -> List[float]:
         result = []
         if for_interpolation:
             result.append(self.offset or 0)
@@ -187,7 +193,7 @@ class Envelope:
         return serialized
 
     @classmethod
-    def triangle(cls, duration=1.0, amplitude=1.0):
+    def triangle(cls, duration=1.0, amplitude=1.0) -> "Envelope":
         """
         Make a triangle envelope.
 
