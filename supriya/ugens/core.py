@@ -5,9 +5,12 @@ import inspect
 import math
 import operator
 import struct
+import subprocess
+import tempfile
 import threading
 import uuid
 from enum import Enum
+from pathlib import Path
 from types import MappingProxyType
 from typing import (
     Callable,
@@ -2587,6 +2590,12 @@ def _decompile_synthdef(value: bytes, index: int) -> Tuple[SynthDef, int]:
     return synthdef, index
 
 
+def decompile_synthdef(value: bytes) -> SynthDef:
+    if len(synthdefs := decompile_synthdefs(value)) != 1:
+        raise ValueError(bytes)
+    return synthdefs[0]
+
+
 def decompile_synthdefs(value: bytes) -> List[SynthDef]:
     synthdefs: List[SynthDef] = []
     index = 4
@@ -2615,3 +2624,40 @@ class SinOsc(UGen):
 @ugen(ar=True, kr=True)
 class WhiteNoise(UGen):
     pass
+
+
+class SuperColliderSynthDef:
+
+    def __init__(self, name: str, body: str, rates: Optional[str] = None):
+        self.name = name
+        self.body = body
+        self.rates = rates
+
+    def _build_sc_input(self, directory_path: Path) -> str:
+        input_ = []
+        input_.append("a = SynthDef(")
+        input_.append("    \\{}, {{".format(self.name))
+        for line in self.body.splitlines():
+            input_.append("    " + line)
+        if self.rates:
+            input_.append("}}, {});".format(self.rates))
+        else:
+            input_.append("});")
+        input_.append('"Defined SynthDef".postln;')
+        input_.append('a.writeDefFile("{}");'.format(directory_path))
+        input_.append('"Wrote SynthDef".postln;')
+        input_.append("0.exit;")
+        input_ = "\n".join(input_)
+        return input_
+
+    def compile(self) -> bytes:
+        sclang_path = sclang.find()
+        with tempfile.TemporaryDirectory() as directory:
+            directory_path = Path(directory)
+            sc_input = self._build_sc_input(directory_path)
+            sc_file_path = directory_path / f"{self.name}.sc"
+            sc_file_path.write_text(sc_input)
+            command = [str(sclang_path), "-D", str(sc_file_path)]
+            subprocess.run(command, timeout=10)
+            result = (directory_path / f"{self.name}.scsyndef").read_bytes()
+        return bytes(result)
