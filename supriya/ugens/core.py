@@ -372,6 +372,8 @@ def _compute_binary_op(
     def recurse(
         all_expanded_params: UGenRecursiveParams,
     ) -> "UGenOperable":
+        if not isinstance(all_expanded_params, dict) and len(all_expanded_params) == 1:
+            all_expanded_params = all_expanded_params[0]
         if isinstance(all_expanded_params, dict):
             if (
                 isinstance(left, SupportsFloat)
@@ -404,6 +406,8 @@ def _compute_unary_op(
     def recurse(
         all_expanded_params: UGenRecursiveParams,
     ) -> "UGenOperable":
+        if not isinstance(all_expanded_params, dict) and len(all_expanded_params) == 1:
+            all_expanded_params = all_expanded_params[0]
         if isinstance(all_expanded_params, dict):
             if isinstance(source, SupportsFloat) and float_operator is not None:
                 return ConstantProxy(float_operator(float(source)))
@@ -1356,7 +1360,9 @@ class UGen(UGenOperable, Sequence):
                             new_params[key] = value[i % len(value)]
                     else:
                         new_params[key] = value[i % len(value)]
-            results.append(cls._expand_params(new_params, unexpanded_keys))
+            results.append(
+                cls._expand_params(new_params, unexpanded_keys=unexpanded_keys)
+            )
         return results
 
     @classmethod
@@ -1572,14 +1578,26 @@ class Parameter(UGen):
         lag: Optional[float] = None,
     ) -> None:
         if isinstance(value, SupportsFloat):
-            self.value = [float(value)]
+            self.value = (float(value),)
         else:
-            self.value = [float(x) for x in value]
+            self.value = tuple(float(x) for x in value)
         self.name = name
         self.lag = lag
         self.rate = rate
         self._channel_count = len(self.value)
         super().__init__(calculation_rate=CalculationRate.from_expr(self.rate))
+
+    def __eq__(self, other) -> bool:
+        return (type(self), self.name, self.value, self.rate, self.lag) == (
+            type(other),
+            other.name,
+            other.value,
+            other.rate,
+            other.lag,
+        )
+
+    def __hash__(self) -> int:
+        return hash((type(self), self.name, self.value, self.rate, self.lag))
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}.{self.calculation_rate.token}({self.name})>"
@@ -1631,7 +1649,8 @@ class LagControl(Control):
 
 
 class TrigControl(Control):
-    pass
+    _ordered_keys = ("lags",)
+    _unexpanded_keys = frozenset(["lags"])
 
 
 class SynthDefError(Exception):
@@ -1900,11 +1919,12 @@ class SynthDef:
                         for i, value in enumerate(parameter.value):
                             inputs[f"{parameter.name}[{i}]"] = str(value)
             for input_key, input_ in zip(ugen._input_keys, ugen._inputs):
-                input_name = (
-                    input_key
-                    if isinstance(input_key, str)
-                    else f"{input_key[0]}[{input_key[1]}]"
-                )
+                if isinstance(input_key, str):
+                    input_name = input_key
+                    if input_key in ugen._unexpanded_keys:
+                        input_name += "[0]"
+                else:
+                    input_name = f"{input_key[0]}[{input_key[1]}]"
                 if isinstance(input_, float):
                     input_value = str(input_)
                 else:
@@ -2004,7 +2024,9 @@ class SynthDefBuilder:
         self._uuid = uuid.uuid4()
         for key, value in kwargs.items():
             if isinstance(value, Parameter):
-                self.add_parameter(lag=value.lag, name=key, value=value.value, rate=value.rate)
+                self.add_parameter(
+                    lag=value.lag, name=key, value=value.value, rate=value.rate
+                )
             else:
                 self.add_parameter(name=key, value=value)
 

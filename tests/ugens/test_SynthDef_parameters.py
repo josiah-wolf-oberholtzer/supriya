@@ -29,12 +29,12 @@ def py_synthdef_01():
 
 
 def test_parameters_01_parameters(py_synthdef_01):
-    assert py_synthdef_01.indexed_parameters == (
+    assert py_synthdef_01.indexed_parameters == [
         (
             0,
             Parameter(name="freq", rate=ParameterRate.CONTROL, value=440.0),
         ),
-    )
+    ]
 
 
 @pytest.mark.skipif(platform.system() == "Windows", reason="hangs on Windows")
@@ -112,7 +112,7 @@ def py_synthdef_02():
 
 
 def test_parameters_02_parameters(py_synthdef_02):
-    assert py_synthdef_02.indexed_parameters == (
+    assert py_synthdef_02.indexed_parameters == [
         (
             0,
             Parameter(name="freq", rate=ParameterRate.CONTROL, value=1200.0),
@@ -121,7 +121,7 @@ def test_parameters_02_parameters(py_synthdef_02):
             1,
             Parameter(name="out", rate=ParameterRate.CONTROL, value=23.0),
         ),
-    )
+    ]
 
 
 @pytest.mark.skipif(platform.system() == "Windows", reason="hangs on Windows")
@@ -210,7 +210,7 @@ def test_parameters_03_parameters(py_synthdef_03):
     """
     Multiple parameters, including unused parameters.
     """
-    assert py_synthdef_03.indexed_parameters == (
+    assert py_synthdef_03.indexed_parameters == [
         (
             0,
             Parameter(name="damping", rate=ParameterRate.CONTROL, value=0.1),
@@ -223,7 +223,7 @@ def test_parameters_03_parameters(py_synthdef_03):
             2,
             Parameter(name="room_size", rate=ParameterRate.CONTROL, value=0.9),
         ),
-    )
+    ]
 
 
 @pytest.mark.skipif(platform.system() == "Windows", reason="hangs on Windows")
@@ -332,7 +332,7 @@ def test_parameters_04_parameters(py_synthdef_04):
     """
     Different calculation rates.
     """
-    assert py_synthdef_04.indexed_parameters == (
+    assert py_synthdef_04.indexed_parameters == [
         (
             3,
             Parameter(name="a_phase", rate=ParameterRate.AUDIO, value=0.0),
@@ -353,7 +353,7 @@ def test_parameters_04_parameters(py_synthdef_04):
             2,
             Parameter(name="t_trig_b", rate=ParameterRate.TRIGGER, value=0.0),
         ),
-    )
+    ]
 
 
 @pytest.mark.skipif(platform.system() == "Windows", reason="hangs on Windows")
@@ -522,7 +522,7 @@ def test_parameters_05_parameters(py_synthdef_05):
     """
     Literal array arguments.
     """
-    assert py_synthdef_05.indexed_parameters == (
+    assert py_synthdef_05.indexed_parameters == [
         (
             0,
             Parameter(name="amp", rate=ParameterRate.CONTROL, value=0.1),
@@ -531,7 +531,7 @@ def test_parameters_05_parameters(py_synthdef_05):
             1,
             Parameter(name="freqs", rate=ParameterRate.CONTROL, value=(300.0, 400.0)),
         ),
-    )
+    ]
 
 
 @pytest.mark.skipif(platform.system() == "Windows", reason="hangs on Windows")

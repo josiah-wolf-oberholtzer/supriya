@@ -450,7 +450,7 @@ class SendPeakRMS(UGen):
         ...     source=[1, 2, 3],
         ... )
         >>> send_peak_rms
-        SendPeakRMS.kr()
+        <SendPeakRMS.kr()>
     """
 
     ### CLASS VARIABLES ###
@@ -483,7 +483,7 @@ class SendPeakRMS(UGen):
             ...     source=source,
             ... )
             >>> send_peak_rms
-            SendPeakRMS.ar()
+            <SendPeakRMS.ar()>
 
         Returns ugen graph.
         """
@@ -517,7 +517,7 @@ class SendPeakRMS(UGen):
             ...     source=source,
             ... )
             >>> send_peak_rms
-            SendPeakRMS.kr()
+            <SendPeakRMS.kr()>
 
         Returns ugen graph.
         """
@@ -571,7 +571,7 @@ class SendReply(UGen):
             ...     trigger=trigger,
             ... )
             >>> send_reply
-            SendReply.ar()
+            <SendReply.ar()>
 
         Returns ugen graph.
         """
@@ -600,7 +600,7 @@ class SendReply(UGen):
             ...     trigger=trigger,
             ... )
             >>> send_reply
-            SendReply.kr()
+            <SendReply.kr()>
 
         Returns ugen graph.
         """
