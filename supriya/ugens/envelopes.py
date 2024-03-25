@@ -303,6 +303,7 @@ class EnvGen(UGen):
     @classmethod
     def _new_expanded(
         cls,
+        *,
         calculation_rate=None,
         done_action=None,
         envelope=None,
@@ -313,14 +314,10 @@ class EnvGen(UGen):
     ):
         if not isinstance(done_action, Parameter):
             done_action = DoneAction.from_expr(done_action)
-        if envelope is None:
-            envelope = Envelope()
-        assert isinstance(envelope, Envelope)
-        envelope = envelope.serialize()
         return super(EnvGen, cls)._new_expanded(
             calculation_rate=calculation_rate,
             done_action=done_action,
-            envelope=envelope,
+            envelope=(envelope or Envelope()).serialize(),
             gate=gate,
             level_bias=level_bias,
             level_scale=level_scale,

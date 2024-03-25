@@ -1003,6 +1003,7 @@ class SynthDefFactory:
                     name: ...
                     ugens:
                     -   Control.ir:
+                            in_: 0.0
                             out: 0.0
                     -   In.ar:
                             bus: Control.ir[0:in_]
@@ -1249,6 +1250,7 @@ class SynthDefFactory:
                     name: ...
                     ugens:
                     -   Control.ir:
+                            duration: 1.0
                             out: 0.0
                     -   Line.kr:
                             start: 0.0
@@ -1681,6 +1683,35 @@ class SynthDefFactory:
                     name: ...
                     ugens:
                     -   Control.ir:
+                            band_1_clamp_time: 0.01
+                            band_1_postgain: 0.0
+                            band_1_pregain: 0.0
+                            band_1_relax_time: 0.1
+                            band_1_slope_above: 0.5
+                            band_1_slope_below: 1.0
+                            band_1_threshold: -6.0
+                            band_2_clamp_time: 0.01
+                            band_2_postgain: 0.0
+                            band_2_pregain: 0.0
+                            band_2_relax_time: 0.1
+                            band_2_slope_above: 0.5
+                            band_2_slope_below: 1.0
+                            band_2_threshold: -6.0
+                            band_3_clamp_time: 0.01
+                            band_3_postgain: 0.0
+                            band_3_pregain: 0.0
+                            band_3_relax_time: 0.1
+                            band_3_slope_above: 0.5
+                            band_3_slope_below: 1.0
+                            band_3_threshold: -6.0
+                            band_4_clamp_time: 0.01
+                            band_4_postgain: 0.0
+                            band_4_pregain: 0.0
+                            band_4_relax_time: 0.1
+                            band_4_slope_above: 0.5
+                            band_4_slope_below: 1.0
+                            band_4_threshold: -6.0
+                            mix: 0.0
                             out: 0.0
                     -   In.ar:
                             bus: Control.ir[0:out]

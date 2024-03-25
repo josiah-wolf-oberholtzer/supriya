@@ -217,15 +217,11 @@ def test_parameters_03_parameters(py_synthdef_03):
         ),
         (
             1,
-            Parameter(
-                name="delay_time", rate=ParameterRate.CONTROL, value=1.0
-            ),
+            Parameter(name="delay_time", rate=ParameterRate.CONTROL, value=1.0),
         ),
         (
             2,
-            Parameter(
-                name="room_size", rate=ParameterRate.CONTROL, value=0.9
-            ),
+            Parameter(name="room_size", rate=ParameterRate.CONTROL, value=0.9),
         ),
     )
 
@@ -347,9 +343,7 @@ def test_parameters_04_parameters(py_synthdef_04):
         ),
         (
             0,
-            Parameter(
-                name="i_decay_time", rate=ParameterRate.SCALAR, value=1.0
-            ),
+            Parameter(name="i_decay_time", rate=ParameterRate.SCALAR, value=1.0),
         ),
         (
             1,
@@ -535,9 +529,7 @@ def test_parameters_05_parameters(py_synthdef_05):
         ),
         (
             1,
-            Parameter(
-                name="freqs", rate=ParameterRate.CONTROL, value=(300.0, 400.0)
-            ),
+            Parameter(name="freqs", rate=ParameterRate.CONTROL, value=(300.0, 400.0)),
         ),
     )
 
@@ -807,7 +799,10 @@ def test_parameters_07():
         synthdef:
             name: simple_sine
             ugens:
-            -   Control.kr: null
+            -   Control.kr:
+                    amplitude: 0.0
+                    bus: 0.0
+                    frequency: 440.0
             -   SinOsc.ar:
                     frequency: Control.kr[2:frequency]
                     phase: 0.0
@@ -835,7 +830,10 @@ def test_building_is_idempotent():
         synthdef:
             name: 937772273a43d21bcd7b9f096f42648a
             ugens:
-            -   Control.kr: null
+            -   Control.kr:
+                    amplitude: 0.0
+                    bus: 0.0
+                    frequency: 440.0
             -   SinOsc.ar:
                     frequency: Control.kr[2:frequency]
                     phase: 0.0

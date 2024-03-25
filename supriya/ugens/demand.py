@@ -90,7 +90,7 @@ class Demand(UGen):
         ...     trigger=trigger,
         ... )
         >>> demand
-        UGenVector({2})
+        <Demand.ar()>
     """
 
     trigger = param(0)

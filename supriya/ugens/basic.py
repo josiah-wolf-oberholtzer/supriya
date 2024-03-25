@@ -347,7 +347,12 @@ class MulAdd(UGen):
 
     @classmethod
     def _new_single(
-        cls, addend=None, multiplier=None, calculation_rate=None, source=None, special_index=None
+        cls,
+        addend=None,
+        multiplier=None,
+        calculation_rate=None,
+        source=None,
+        special_index=None,
     ):
         def _inputs_are_valid(source, multiplier, addend):
             if CalculationRate.from_expr(source) == CalculationRate.AUDIO:
