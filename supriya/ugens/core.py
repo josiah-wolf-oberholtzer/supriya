@@ -2099,14 +2099,14 @@ class SynthDefBuilder:
                 local_bufs.append(ugen)
             filtered_ugens.append(ugen)
         if local_bufs:
-            max_local_bufs = cast(UGen, MaxLocalBufs.ir(maximum=len(local_bufs)))
+            max_local_bufs = cast(OutputProxy, MaxLocalBufs.ir(maximum=len(local_bufs)))
             for local_buf in local_bufs:
                 inputs: List[Union[OutputProxy, float]] = list(local_buf.inputs[:2])
-                inputs.append(max_local_bufs[0])
+                inputs.append(max_local_bufs)
                 local_buf._inputs = tuple(inputs)
             # Insert the MaxLocalBufs just before the first LocalBuf
             index = filtered_ugens.index(local_bufs[0])
-            filtered_ugens[index:index] = [max_local_bufs]
+            filtered_ugens[index:index] = [max_local_bufs.ugen]
         return filtered_ugens
 
     def _cleanup_pv_chains(self, ugens: List[UGen]) -> List[UGen]:
