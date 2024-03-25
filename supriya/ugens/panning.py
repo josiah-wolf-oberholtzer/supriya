@@ -22,7 +22,7 @@ class Balance2(UGen):
         ...     right=right,
         ... )
         >>> balance_2
-        UGenVector({2})
+        <Balance2.ar()>
     """
 
     left = param()
@@ -47,7 +47,7 @@ class BiPanB2(UGen):
         ...     in_b=in_b,
         ... )
         >>> bi_pan_b_2
-        UGenVector({3})
+        <BiPanB2.ar()>
 
     ::
 
@@ -80,7 +80,7 @@ class DecodeB2(UGen):
         ...     y=y,
         ... )
         >>> decode_b_2
-        UGenVector({4})
+        <DecodeB2.ar()>
     """
 
     w = param()
@@ -101,7 +101,7 @@ class Pan2(UGen):
         ...     source=source,
         ... )
         >>> pan_2
-        UGenVector({2})
+        <Pan2.ar()>
     """
 
     source = param()
@@ -124,7 +124,7 @@ class Pan4(UGen):
         ...     y_position=0,
         ... )
         >>> pan_4
-        UGenVector({4})
+        <Pan4.ar()>
     """
 
     source = param()
@@ -150,7 +150,7 @@ class PanAz(UGen):
         ...     width=2,
         ... )
         >>> pan_az
-        UGenVector({8})
+        <PanAz.ar()>
     """
 
     source = param()
@@ -175,7 +175,7 @@ class PanB(UGen):
         ...     source=source,
         ... )
         >>> pan_b
-        UGenVector({3})
+        <PanB.ar()>
     """
 
     source = param()
@@ -198,7 +198,7 @@ class PanB2(UGen):
         ...     source=source,
         ... )
         >>> pan_b_2
-        UGenVector({3})
+        <PanB2.ar()>
     """
 
     source = param()
@@ -223,7 +223,7 @@ class Rotate2(UGen):
         ...     position=position,
         ... )
         >>> rotate_2
-        UGenVector({2})
+        <Rotate2.ar()>
 
     Returns an array of the rotator's left and right outputs.
     """
@@ -396,7 +396,7 @@ class XFade2(UGen):
         ...     pan=supriya.ugens.LFTri.kr(frequency=0.1),
         ... )
         >>> xfade_3
-        XFade2.ar()[0]
+        <XFade2.ar()[0]>
     """
 
     in_a = param()

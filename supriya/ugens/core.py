@@ -39,6 +39,7 @@ except ImportError:
 
 from uqbar.graphs import Edge, Graph, Node, RecordField, RecordGroup
 
+from .. import sclang
 from ..enums import (
     BinaryOperator,
     CalculationRate,
@@ -155,8 +156,7 @@ def _add_rate_fn(
             else prefix
         )
     body = ["return cls._new_expanded("]
-    if rate is not None:
-        body.append(f"    calculation_rate={rate!r},")
+    body.append(f"    calculation_rate={rate!r},")
     if is_multichannel and not fixed_channel_count:
         args.append(f"channel_count: int = {channel_count or 1}")
         body.append("    channel_count=channel_count,")
@@ -434,7 +434,7 @@ def _compute_ugen_map(
     for input_ in source:
         calculation_rate = CalculationRate.from_expr(input_)
         method = _get_method_for_rate(ugen, calculation_rate)
-        outputs.append(method(input_))
+        outputs.append(method(source=input_, **kwargs))
     if len(outputs) == 1:
         return outputs[0]
     return UGenVector(*outputs)
@@ -1271,7 +1271,7 @@ class UGen(UGenOperable, Sequence):
             builder._add_ugen(self)
         for input_ in self._inputs:
             if isinstance(input_, OutputProxy) and input_.ugen._uuid != self._uuid:
-                raise SynthDefError("UUID mismatch")
+                raise SynthDefError("UGen input in different scope")
         self._values = tuple(
             OutputProxy(ugen=self, index=i)
             for i in range(getattr(self, "_channel_count", 1))
@@ -1961,6 +1961,10 @@ class SynthDef:
         return "gate" in self.parameters
 
     @property
+    def indexed_parameters(self) -> Sequence[Tuple[int, Parameter]]:
+        return sorted((value[1], value[0]) for value in self.parameters.values())
+
+    @property
     def name(self) -> Optional[str]:
         return self._name
 
@@ -2008,7 +2012,7 @@ class SynthDefBuilder:
 
     def _add_ugen(self, ugen: UGen):
         if ugen._uuid != self._uuid:
-            raise SynthDefError("UUID mismatch")
+            raise SynthDefError("UGen input in different scope")
         if not self._building:
             self._ugens.append(ugen)
 
@@ -2080,7 +2084,7 @@ class SynthDefBuilder:
                     input_.ugen, PV_ChainUGen
                 ):
                     continue
-                mapping.setdefault(input_.source, []).append((ugen, i))
+                mapping.setdefault(input_.ugen, []).append((ugen, i))
         return mapping
 
     def _cleanup_local_bufs(self, ugens: List[UGen]) -> List[UGen]:
@@ -2437,7 +2441,7 @@ def synthdef(*args: Union[str, Tuple[str, float]]) -> Callable[[Callable], Synth
             if value is inspect._empty:
                 value = 0.0
             parameter = Parameter(lag=lag, name=name, rate=rate, value=value)
-            kwargs[name] = builder._add_parameter(parameter)
+            kwargs[name] = builder.add_parameter(name=name, value=parameter)
         with builder:
             func(**kwargs)
         return builder.build(name=func.__name__)
