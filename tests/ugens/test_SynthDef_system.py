@@ -121,7 +121,7 @@ def test_system_link_audio_1_sclang():
             -   InFeedback.ar:
                     bus: Control.kr[1:in]
             -   Control.kr:
-                   gate: 1.0
+                    gate: 1.0
             -   Control.kr:
                     fadeTime: 0.019999999552965164
             -   EnvGen.kr:

@@ -1664,14 +1664,12 @@ class SynthDef:
             raise SynthDefError("No UGens provided")
         self._ugens = tuple(ugens)
         self._name = name
-        self._constants: Tuple[float, ...] = tuple(
-            set(
-                input_
-                for ugen in ugens
-                for input_ in ugen.inputs
-                if isinstance(input_, float)
-            )
-        )
+        constants: List[float] = []
+        for ugen in ugens:
+            for input_ in ugen.inputs:
+                if isinstance(input_, float) and input_ not in constants:
+                    constants.append(input_)
+        self._constants = tuple(constants)
         self._controls: Tuple[Control, ...] = tuple(
             ugen for ugen in ugens if isinstance(ugen, Control)
         )
