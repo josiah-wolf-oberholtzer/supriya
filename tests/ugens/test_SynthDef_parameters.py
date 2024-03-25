@@ -32,7 +32,7 @@ def test_parameters_01_parameters(py_synthdef_01):
     assert py_synthdef_01.indexed_parameters == (
         (
             0,
-            Parameter(name="freq", parameter_rate=ParameterRate.CONTROL, value=440.0),
+            Parameter(name="freq", rate=ParameterRate.CONTROL, value=440.0),
         ),
     )
 
@@ -115,11 +115,11 @@ def test_parameters_02_parameters(py_synthdef_02):
     assert py_synthdef_02.indexed_parameters == (
         (
             0,
-            Parameter(name="freq", parameter_rate=ParameterRate.CONTROL, value=1200.0),
+            Parameter(name="freq", rate=ParameterRate.CONTROL, value=1200.0),
         ),
         (
             1,
-            Parameter(name="out", parameter_rate=ParameterRate.CONTROL, value=23.0),
+            Parameter(name="out", rate=ParameterRate.CONTROL, value=23.0),
         ),
     )
 
@@ -213,18 +213,18 @@ def test_parameters_03_parameters(py_synthdef_03):
     assert py_synthdef_03.indexed_parameters == (
         (
             0,
-            Parameter(name="damping", parameter_rate=ParameterRate.CONTROL, value=0.1),
+            Parameter(name="damping", rate=ParameterRate.CONTROL, value=0.1),
         ),
         (
             1,
             Parameter(
-                name="delay_time", parameter_rate=ParameterRate.CONTROL, value=1.0
+                name="delay_time", rate=ParameterRate.CONTROL, value=1.0
             ),
         ),
         (
             2,
             Parameter(
-                name="room_size", parameter_rate=ParameterRate.CONTROL, value=0.9
+                name="room_size", rate=ParameterRate.CONTROL, value=0.9
             ),
         ),
     )
@@ -339,25 +339,25 @@ def test_parameters_04_parameters(py_synthdef_04):
     assert py_synthdef_04.indexed_parameters == (
         (
             3,
-            Parameter(name="a_phase", parameter_rate=ParameterRate.AUDIO, value=0.0),
+            Parameter(name="a_phase", rate=ParameterRate.AUDIO, value=0.0),
         ),
         (
             4,
-            Parameter(name="freq", parameter_rate=ParameterRate.CONTROL, value=440.0),
+            Parameter(name="freq", rate=ParameterRate.CONTROL, value=440.0),
         ),
         (
             0,
             Parameter(
-                name="i_decay_time", parameter_rate=ParameterRate.SCALAR, value=1.0
+                name="i_decay_time", rate=ParameterRate.SCALAR, value=1.0
             ),
         ),
         (
             1,
-            Parameter(name="t_trig_a", parameter_rate=ParameterRate.TRIGGER, value=0.0),
+            Parameter(name="t_trig_a", rate=ParameterRate.TRIGGER, value=0.0),
         ),
         (
             2,
-            Parameter(name="t_trig_b", parameter_rate=ParameterRate.TRIGGER, value=0.0),
+            Parameter(name="t_trig_b", rate=ParameterRate.TRIGGER, value=0.0),
         ),
     )
 
@@ -531,12 +531,12 @@ def test_parameters_05_parameters(py_synthdef_05):
     assert py_synthdef_05.indexed_parameters == (
         (
             0,
-            Parameter(name="amp", parameter_rate=ParameterRate.CONTROL, value=0.1),
+            Parameter(name="amp", rate=ParameterRate.CONTROL, value=0.1),
         ),
         (
             1,
             Parameter(
-                name="freqs", parameter_rate=ParameterRate.CONTROL, value=(300.0, 400.0)
+                name="freqs", rate=ParameterRate.CONTROL, value=(300.0, 400.0)
             ),
         ),
     )
@@ -667,14 +667,14 @@ def test_parameters_06_parameters(py_synthdef_06):
     assert py_synthdef_06.indexed_parameters == (
         (
             0,
-            Parameter(name="amp", parameter_rate=ParameterRate.CONTROL, value=0.1),
+            Parameter(name="amp", rate=ParameterRate.CONTROL, value=0.1),
         ),
         (
             1,
             Parameter(
                 lag=0.5,
                 name="freqs",
-                parameter_rate=ParameterRate.CONTROL,
+                rate=ParameterRate.CONTROL,
                 value=(300.0, 400.0),
             ),
         ),

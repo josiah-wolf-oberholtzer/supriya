@@ -1560,7 +1560,7 @@ class SynthDefFactory:
         return clone
 
     def with_parameter(self, name, value, rate=None):
-        parameter = Parameter(name=name, value=value, parameter_rate=rate)
+        parameter = Parameter(name=name, value=value, rate=rate)
         return self.with_parameters(**{name: parameter})
 
     def with_parameters(self, **kwargs):
