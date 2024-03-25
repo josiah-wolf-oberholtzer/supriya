@@ -1199,7 +1199,7 @@ class UGenVector(UGenOperable, Sequence[UGenOperable]):
 
 @runtime_checkable
 class UGenSerializable(Protocol):
-    def serialize(self) -> UGenVector:
+    def serialize(self, **kwargs) -> UGenVector:
         pass
 
 
@@ -1524,7 +1524,12 @@ class BinaryOpUGen(UGen):
                 if right == -1:
                     return -left
             return cls(
-                calculation_rate=CalculationRate.from_expr(calculation_rate),
+                calculation_rate=max(
+                    [
+                        CalculationRate.from_expr(left),
+                        CalculationRate.from_expr(right),
+                    ]
+                ),
                 special_index=special_index,
                 left=left,
                 right=right,
@@ -1562,9 +1567,9 @@ class Parameter(UGen):
         self,
         *,
         name: Optional[str] = None,
-        value: Union[SupportsFloat, Sequence[SupportsFloat]],
+        value: Union[float, Sequence[float]],
         rate: ParameterRate = ParameterRate.CONTROL,
-        lag: Optional[SupportsFloat] = None,
+        lag: Optional[float] = None,
     ) -> None:
         if isinstance(value, SupportsFloat):
             self.value = [float(value)]
@@ -1992,13 +1997,16 @@ class SynthDefBuilder:
 
     _active_builders: List["SynthDefBuilder"] = _local._active_builders
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Union[Parameter, float, Sequence[float]]) -> None:
         self._building = False
         self._parameters: Dict[str, Parameter] = {}
         self._ugens: List[UGen] = []
         self._uuid = uuid.uuid4()
         for key, value in kwargs.items():
-            self.add_parameter(name=key, value=value)
+            if isinstance(value, Parameter):
+                self.add_parameter(lag=value.lag, name=key, value=value.value, rate=value.rate)
+            else:
+                self.add_parameter(name=key, value=value)
 
     def __enter__(self) -> "SynthDefBuilder":
         self._active_builders.append(self)
@@ -2220,23 +2228,14 @@ class SynthDefBuilder:
 
     def add_parameter(
         self,
+        *,
         name: str,
-        value: Union[Parameter, SupportsFloat, Sequence[SupportsFloat]],
-        rate: Optional[ParameterRateLike] = None,
-        lag: Optional[SupportsFloat] = None,
+        value: Union[float, Sequence[float]],
+        rate: Optional[ParameterRateLike] = ParameterRate.CONTROL,
+        lag: Optional[float] = None,
     ) -> Parameter:
-        if isinstance(value, Parameter):
-            value_: Union[SupportsFloat, Sequence[SupportsFloat]] = value.value
-            rate_ = ParameterRate.from_expr(rate or value.rate)
-            lag_ = lag if lag is not None else value.lag
-        else:
-            value_ = value
-            rate_ = (
-                ParameterRate.CONTROL if rate is None else ParameterRate.from_expr(rate)
-            )
-            lag_ = lag
         with self:
-            parameter = Parameter(lag=lag_, name=name, rate=rate_, value=value_)
+            parameter = Parameter(lag=lag, name=name, rate=rate, value=value)
         self._parameters[name] = parameter
         return parameter
 
@@ -2329,7 +2328,10 @@ def synthdef(*args: Union[str, Tuple[str, float]]) -> Callable[[Callable], Synth
         synthdef:
             name: sine
             ugens:
-            -   Control.kr: null
+            -   Control.kr:
+                    amp: 0.1
+                    freq: 440.0
+                    gate: 1.0
             -   SinOsc.ar:
                     frequency: Control.kr[1:freq]
                     phase: 0.0
