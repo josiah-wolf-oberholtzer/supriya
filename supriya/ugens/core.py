@@ -1265,7 +1265,7 @@ class UGen(UGenOperable, Sequence):
                     raise ValueError(key, x)
                 input_keys.append((key, i) if i is not None else key)
         if kwargs:
-            raise ValueError(kwargs)
+            raise ValueError(type(self).__name__, kwargs)
         self._inputs = tuple(inputs)
         self._input_keys = tuple(input_keys)
         self._uuid: Optional[uuid.UUID] = None
@@ -1628,6 +1628,9 @@ class AudioControl(Control):
 
 
 class LagControl(Control):
+    _ordered_keys = ("lags",)
+    _unexpanded_keys = frozenset(["lags"])
+
     def __init__(
         self,
         *,
@@ -1649,8 +1652,7 @@ class LagControl(Control):
 
 
 class TrigControl(Control):
-    _ordered_keys = ("lags",)
-    _unexpanded_keys = frozenset(["lags"])
+    pass
 
 
 class SynthDefError(Exception):
@@ -2226,7 +2228,11 @@ class SynthDefBuilder:
         return ugens
 
     def _sort_topologically(self, ugens: List[UGen]) -> List[UGen]:
-        sort_bundles = self._initiate_topological_sort(ugens)
+        try:
+            sort_bundles = self._initiate_topological_sort(ugens)
+        except Exception:
+            print(ugens)
+            raise
         available_ugens: List[UGen] = []
         output_stack: List[UGen] = []
         for ugen in reversed(ugens):
@@ -2403,11 +2409,14 @@ def synthdef(*args: Union[str, Tuple[str, float]]) -> Callable[[Callable], Synth
         synthdef:
             name: sine
             ugens:
-            -   AudioControl.ar: null
+            -   AudioControl.ar:
+                    freq: 440.0
             -   SinOsc.ar:
                     frequency: AudioControl.ar[0:freq]
                     phase: 0.0
             -   LagControl.kr:
+                    amp: 0.1
+                    gate: 1.0
                     lags[0]: 0.5
                     lags[1]: 0.0
             -   BinaryOpUGen(MULTIPLICATION).ar/0:
@@ -2462,8 +2471,7 @@ def synthdef(*args: Union[str, Tuple[str, float]]) -> Callable[[Callable], Synth
             value = parameter.default
             if value is inspect._empty:
                 value = 0.0
-            parameter = Parameter(lag=lag, name=name, rate=rate, value=value)
-            kwargs[name] = builder.add_parameter(name=name, value=parameter)
+            kwargs[name] = builder.add_parameter(name=name, lag=lag, rate=rate, value=value)
         with builder:
             func(**kwargs)
         return builder.build(name=func.__name__)

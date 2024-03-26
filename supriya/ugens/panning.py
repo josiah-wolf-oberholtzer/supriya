@@ -324,8 +324,8 @@ class Splay(PseudoUGen):
 
     @classmethod
     def _new_expanded(cls, calculation_rate=None, **kwargs):
-        dictionaries = UGen._expand_dictionary(
-            kwargs, unexpanded_input_names=["source"]
+        dictionaries = UGen._expand_params(
+            kwargs, unexpanded_keys=["source"]
         )
         ugens = [
             cls._new_single(calculation_rate=calculation_rate, **dictionary)

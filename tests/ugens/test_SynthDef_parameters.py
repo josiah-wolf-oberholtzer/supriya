@@ -656,7 +656,7 @@ def test_parameters_06_parameters(py_synthdef_06):
     """
     Literal array arguments.
     """
-    assert py_synthdef_06.indexed_parameters == (
+    assert py_synthdef_06.indexed_parameters == [
         (
             0,
             Parameter(name="amp", rate=ParameterRate.CONTROL, value=0.1),
@@ -670,7 +670,7 @@ def test_parameters_06_parameters(py_synthdef_06):
                 value=(300.0, 400.0),
             ),
         ),
-    )
+    ]
 
 
 @pytest.mark.skipif(platform.system() == "Windows", reason="hangs on Windows")

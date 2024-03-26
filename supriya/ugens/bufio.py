@@ -115,12 +115,12 @@ class LocalBuf(UGen):
         >>> for ugen in synthdef.ugens:
         ...     ugen
         ...
-        MaxLocalBufs.ir()
-        LocalBuf.ir()
-        PinkNoise.ar()
-        FFT.kr()
-        IFFT.ar()
-        Out.ar()
+        <MaxLocalBufs.ir()>
+        <LocalBuf.ir()>
+        <PinkNoise.ar()>
+        <FFT.kr()>
+        <IFFT.ar()>
+        <Out.ar()>
     """
 
     channel_count = param(1)
@@ -147,26 +147,6 @@ class MaxLocalBufs(UGen):
     """
 
     maximum = param(0)
-
-    def increment(self):
-        """
-        Increments maximum local buffer count.
-
-        ::
-
-            >>> max_local_bufs = supriya.ugens.MaxLocalBufs.ir(maximum=1).source
-            >>> max_local_bufs.inputs
-            (1.0,)
-
-        ::
-
-            >>> max_local_bufs.increment()
-            >>> max_local_bufs.inputs
-            (2.0,)
-
-        Returns none.
-        """
-        self._inputs[0] += 1
 
 
 @ugen(ar=True, kr=True, is_multichannel=True)
