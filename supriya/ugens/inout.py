@@ -62,7 +62,7 @@ class LocalIn(UGen):
         if not isinstance(default, Sequence):
             default = [default]
         kwargs["default"] = list(
-            repeat_to_length([float(x) for x in default], len(self))
+            repeat_to_length([float(x) for x in default], self._channel_count)
         )
         return calculation_rate, kwargs
 

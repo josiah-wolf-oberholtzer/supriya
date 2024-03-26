@@ -1295,7 +1295,7 @@ class UGen(UGenOperable, Sequence):
         return UGenVector(*self._values[i])
 
     def __len__(self) -> int:
-        return len(self._values)
+        return self._channel_count
 
     def __repr__(self):
         return f"<{type(self).__name__}.{self.calculation_rate.token}()>"

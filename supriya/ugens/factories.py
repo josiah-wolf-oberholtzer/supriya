@@ -761,17 +761,18 @@ class SynthDefFactory:
                 synthdef:
                     name: ...
                     ugens:
-                    -   Control.ir:
-                            out: 0.0
-                    -   In.ar:
-                            bus: Control.ir[0:out]
-                    -   Control.kr: null
+                    -   Control.kr:
+                            gate: 1.0
                     -   Linen.kr:
                             gate: Control.kr[0:gate]
                             attack_time: 0.02
                             sustain_level: 1.0
                             release_time: 0.02
                             done_action: 2.0
+                    -   Control.ir:
+                            out: 0.0
+                    -   In.ar:
+                            bus: Control.ir[0:out]
                     -   ExpRand.ir/0:
                             minimum: 0.01
                             maximum: 0.1
@@ -1050,6 +1051,7 @@ class SynthDefFactory:
                     name: ...
                     ugens:
                     -   Control.ir:
+                            duration: 1.0
                             out: 0.0
                     -   Line.kr:
                             start: 0.0
@@ -1108,6 +1110,7 @@ class SynthDefFactory:
                     name: ...
                     ugens:
                     -   Control.ir:
+                            duration: 1.0
                             out: 0.0
                     -   Line.kr:
                             start: 0.0
@@ -1306,11 +1309,12 @@ class SynthDefFactory:
                 synthdef:
                     name: ...
                     ugens:
+                    -   Control.kr:
+                            mix: 0.0
                     -   Control.ir:
                             out: 0.0
                     -   In.ar:
                             bus: Control.ir[0:out]
-                    -   Control.kr: null
                     -   ExpRand.ir/0:
                             minimum: 0.01
                             maximum: 0.1
@@ -1355,11 +1359,12 @@ class SynthDefFactory:
                 synthdef:
                     name: ...
                     ugens:
+                    -   Control.kr:
+                            level: 1.0
                     -   Control.ir:
                             out: 0.0
                     -   In.ar:
                             bus: Control.ir[0:out]
-                    -   Control.kr: null
                     -   ExpRand.ir/0:
                             minimum: 0.01
                             maximum: 0.1
@@ -1410,6 +1415,7 @@ class SynthDefFactory:
                     name: ...
                     ugens:
                     -   Control.ir:
+                            duration: 1.0
                             out: 0.0
                     -   Line.kr:
                             start: 0.0
@@ -1467,7 +1473,10 @@ class SynthDefFactory:
                 synthdef:
                     name: ...
                     ugens:
+                    -   Control.kr:
+                            level: 1.0
                     -   Control.ir:
+                            duration: 1.0
                             out: 0.0
                     -   Line.kr:
                             start: 0.0
@@ -1476,12 +1485,11 @@ class SynthDefFactory:
                             done_action: 2.0
                     -   UnaryOpUGen(HANNING_WINDOW).kr:
                             source: Line.kr[0]
-                    -   In.ar:
-                            bus: Control.ir[1:out]
-                    -   Control.kr: null
                     -   BinaryOpUGen(MULTIPLICATION).kr:
                             left: UnaryOpUGen(HANNING_WINDOW).kr[0]
                             right: Control.kr[0:level]
+                    -   In.ar:
+                            bus: Control.ir[1:out]
                     -   ExpRand.ir/0:
                             minimum: 0.01
                             maximum: 0.1
@@ -1526,7 +1534,10 @@ class SynthDefFactory:
                 synthdef:
                     name: ...
                     ugens:
+                    -   Control.kr:
+                            level: 1.0
                     -   Control.ir:
+                            duration: 1.0
                             out: 0.0
                     -   Line.kr:
                             start: 0.0
@@ -1535,15 +1546,14 @@ class SynthDefFactory:
                             done_action: 2.0
                     -   UnaryOpUGen(HANNING_WINDOW).kr:
                             source: Line.kr[0]
+                    -   BinaryOpUGen(MULTIPLICATION).kr:
+                            left: UnaryOpUGen(HANNING_WINDOW).kr[0]
+                            right: Control.kr[0:level]
                     -   In.ar:
                             bus: Control.ir[1:out]
                     -   BinaryOpUGen(MULTIPLICATION).ar:
                             left: In.ar[0]
                             right: UnaryOpUGen(HANNING_WINDOW).kr[0]
-                    -   Control.kr: null
-                    -   BinaryOpUGen(MULTIPLICATION).kr:
-                            left: UnaryOpUGen(HANNING_WINDOW).kr[0]
-                            right: Control.kr[0:level]
                     -   ExpRand.ir/0:
                             minimum: 0.01
                             maximum: 0.1
@@ -2166,6 +2176,7 @@ class SynthDefFactory:
                     ugens:
                     -   Control.ir:
                             out: 0.0
+                            rand_id: 23.0
                     -   RandID.ir:
                             rand_id: Control.ir[1:rand_id]
                     -   In.ar:
@@ -2417,7 +2428,10 @@ class SynthDefFactory:
                 synthdef:
                     name: ...
                     ugens:
+                    -   Control.kr:
+                            level: 1.0
                     -   Control.ir:
+                            duration: 1.0
                             out: 0.0
                     -   Line.kr:
                             start: 0.0
@@ -2428,7 +2442,6 @@ class SynthDefFactory:
                             source: Line.kr[0]
                     -   In.ar:
                             bus: Control.ir[1:out]
-                    -   Control.kr: null
                     -   ExpRand.ir/0:
                             minimum: 0.01
                             maximum: 0.1
