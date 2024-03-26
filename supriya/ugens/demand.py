@@ -360,14 +360,14 @@ class Dswitch(UGen):
         >>> index = supriya.ugens.Dseq.dr(sequence=[0, 1, 2, 1, 0])
         >>> sequence = (1.0, 2.0, 3.0)
         >>> dswitch = supriya.ugens.Dswitch.dr(
-        ...     index=index,
+        ...     index_=index,
         ...     sequence=sequence,
         ... )
         >>> dswitch
         <Dswitch.dr()[0]>
     """
 
-    index = param()
+    index_ = param()
     sequence = param(unexpanded=True)
 
 
@@ -381,14 +381,14 @@ class Dswitch1(UGen):
         >>> index = supriya.ugens.Dseq.dr(sequence=[0, 1, 2, 1, 0])
         >>> sequence = (1.0, 2.0, 3.0)
         >>> dswitch_1 = supriya.ugens.Dswitch1.dr(
-        ...     index=index,
+        ...     index_=index,
         ...     sequence=sequence,
         ... )
         >>> dswitch_1
         <Dswitch1.dr()[0]>
     """
 
-    index = param()
+    index_ = param()
     sequence = param(unexpanded=True)
 
 

@@ -140,7 +140,7 @@ class CalculationRate(IntEnumeration):
         ):
             return cast(CalculationRate, CalculationRate.SCALAR)
         elif isinstance(expr, Parameter):
-            name = expr.parameter_rate.name
+            name = expr.rate.name
             if name == "TRIGGER":
                 return cast(CalculationRate, CalculationRate.CONTROL)
             return CalculationRate.from_expr(name)

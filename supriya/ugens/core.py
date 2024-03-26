@@ -2091,7 +2091,7 @@ class SynthDefBuilder:
         for parameter in parameters:
             parameter_mapping.setdefault(parameter.rate, []).append(parameter)
         for filtered_parameters in parameter_mapping.values():
-            filtered_parameters.sort(key=lambda x: x.name)
+            filtered_parameters.sort(key=lambda x: x.name or "")
         controls: List[Control] = []
         control_mapping: Dict[OutputProxy, OutputProxy] = {}
         starting_control_index = 0
@@ -2164,7 +2164,7 @@ class SynthDefBuilder:
     def _cleanup_pv_chains(self, ugens: List[UGen]) -> List[UGen]:
         from . import LocalBuf, PV_ChainUGen, PV_Copy
 
-        mapping: Dict[UGen, Tuple[UGen, int]] = {}
+        mapping: Dict[UGen, List[Tuple[UGen, int]]] = {}
         for ugen in ugens:
             if isinstance(ugen, PV_Copy) or not isinstance(ugen, PV_ChainUGen):
                 continue
@@ -2296,7 +2296,9 @@ class SynthDefBuilder:
         if name in self._parameters:
             raise ValueError(name, value)
         with self:
-            parameter = Parameter(lag=lag, name=name, rate=rate, value=value)
+            parameter = Parameter(
+                lag=lag, name=name, rate=ParameterRate.from_expr(rate), value=value
+            )
         self._parameters[name] = parameter
         return parameter
 
@@ -2349,7 +2351,7 @@ class SynthDefBuilder:
                 ugens: List[UGen] = copy.deepcopy(self._ugens)
                 parameters: List[Parameter] = sorted(
                     [x for x in ugens if isinstance(x, Parameter)],
-                    key=lambda x: x.name,
+                    key=lambda x: x.name or "",
                 )
                 ugens = [x for x in ugens if not isinstance(x, Parameter)]
                 controls, control_mapping = self._build_control_mapping(parameters)
@@ -2703,7 +2705,7 @@ def _decode_parameters(value: bytes, index: int) -> Tuple[Dict[int, Parameter], 
                     ),
                 )
             )
-        indexed_parameters.sort(key=lambda x: parameter_names.index(x[1].name))
+        indexed_parameters.sort(key=lambda x: parameter_names.index(x[1].name or ""))
     return dict(indexed_parameters), index
 
 
@@ -2835,21 +2837,25 @@ class SuperColliderSynthDef:
         self.rates = rates
 
     def _build_sc_input(self, directory_path: Path) -> str:
-        input_ = []
-        input_.append("a = SynthDef(")
-        input_.append("    \\{}, {{".format(self.name))
+        input_ = [
+            "a = SynthDef(",
+            "    \\{}, {{".format(self.name),
+        ]
         for line in self.body.splitlines():
             input_.append("    " + line)
         if self.rates:
             input_.append("}}, {});".format(self.rates))
         else:
             input_.append("});")
-        input_.append('"Defined SynthDef".postln;')
-        input_.append('a.writeDefFile("{}");'.format(directory_path))
-        input_.append('"Wrote SynthDef".postln;')
-        input_.append("0.exit;")
-        input_ = "\n".join(input_)
-        return input_
+        input_.extend(
+            [
+                '"Defined SynthDef".postln;',
+                'a.writeDefFile("{}");'.format(directory_path),
+                '"Wrote SynthDef".postln;',
+                "0.exit;",
+            ]
+        )
+        return "\n".join(input_)
 
     def compile(self) -> bytes:
         sclang_path = sclang.find()
