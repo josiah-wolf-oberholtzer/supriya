@@ -1583,7 +1583,7 @@ class Parameter(UGen):
             self.value = tuple(float(x) for x in value)
         self.name = name
         self.lag = lag
-        self.rate = rate
+        self.rate = ParameterRate.from_expr(rate)
         self._channel_count = len(self.value)
         super().__init__(calculation_rate=CalculationRate.from_expr(self.rate))
 
@@ -2260,6 +2260,8 @@ class SynthDefBuilder:
         rate: Optional[ParameterRateLike] = ParameterRate.CONTROL,
         lag: Optional[float] = None,
     ) -> Parameter:
+        if name in self._parameters:
+            raise ValueError(name, value)
         with self:
             parameter = Parameter(lag=lag, name=name, rate=rate, value=value)
         self._parameters[name] = parameter
