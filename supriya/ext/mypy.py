@@ -45,9 +45,15 @@ class UGenTransformer:
         UGenScalarType = api.named_type("supriya.ugens.core.UGenScalar")
         UGenVectorType = api.named_type("supriya.ugens.core.UGenVector")
         # api.named_type() breaks for these... why?
-        UGenRecursiveInputTypeSym = api.lookup_fully_qualified("supriya.ugens.core.UGenRecursiveInput")
-        UGenScalarInputTypeSym = api.lookup_fully_qualified("supriya.ugens.core.UGenScalarInput")
-        UGenVectorInputTypeSym = api.lookup_fully_qualified("supriya.ugens.core.UGenVectorInput")
+        UGenRecursiveInputTypeSym = api.lookup_fully_qualified(
+            "supriya.ugens.core.UGenRecursiveInput"
+        )
+        UGenScalarInputTypeSym = api.lookup_fully_qualified(
+            "supriya.ugens.core.UGenScalarInput"
+        )
+        UGenVectorInputTypeSym = api.lookup_fully_qualified(
+            "supriya.ugens.core.UGenVectorInput"
+        )
 
         assert UGenRecursiveInputTypeSym.node is not None
         assert UGenScalarInputTypeSym.node is not None
@@ -82,13 +88,11 @@ class UGenTransformer:
                 type_annotation=SupportsIntType,
                 initializer=None,
                 kind=ARG_OPT,
-            )
+            ),
         ]
         rate_args = []
         for name, unexpanded in self.collect_params():
-            init_type = (
-                UGenVectorInputType if unexpanded else UGenScalarInputType
-            )
+            init_type = UGenVectorInputType if unexpanded else UGenScalarInputType
             init_args.append(
                 Argument(
                     variable=Var(name, init_type),
