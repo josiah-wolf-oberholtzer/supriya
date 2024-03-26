@@ -17,7 +17,6 @@ from . import (
     RandID,
     ReplaceOut,
     SynthDefBuilder,
-    UGenOperable,
     UGenVector,
     XOut,
 )
@@ -291,7 +290,7 @@ class SynthDefFactory:
         source = input_class.ar(bus=parameter, channel_count=state["channel_count"])
         if self._input.get("windowed"):
             source *= state["window"]
-        if not isinstance(source, Sequence):
+        if source is not None and not isinstance(source, Sequence):
             source = UGenVector(source)
         return source
 
@@ -302,7 +301,7 @@ class SynthDefFactory:
                 source = local_in
             else:
                 source += local_in
-        if not isinstance(source, Sequence):
+        if source is not None and not isinstance(source, Sequence):
             source = UGenVector(source)
         return source
 
@@ -373,7 +372,7 @@ class SynthDefFactory:
             source = self._build_feedback_loop_input(builder, source, state)
             for signal_block in self._signal_blocks:
                 source = signal_block(builder, source, state)
-                if not isinstance(source, Sequence):
+                if source is not None and not isinstance(source, Sequence):
                     source = UGenVector(source)
             self._build_output(builder, source, state)
             self._build_feedback_loop_output(builder, source, state)

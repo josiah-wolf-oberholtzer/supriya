@@ -24,6 +24,7 @@ from typing import (
     Protocol,
     Sequence,
     SupportsFloat,
+    SupportsInt,
     Tuple,
     Type,
     Union,
@@ -50,16 +51,6 @@ from ..enums import (
 )
 from ..typing import CalculationRateLike, Default, Missing, ParameterRateLike
 from ..utils import flatten, iterate_nwise
-
-UGenScalarInput: TypeAlias = Union[SupportsFloat, "UGenScalar"]
-UGenVectorInput: TypeAlias = Union["UGenSerializable", Sequence["UGenScalarInput"]]
-
-UGenRecursiveInput: TypeAlias = Union[
-    "SupportsFloat", "UGenOperable", "UGenSerializable", Sequence["UGenRecursiveInput"]
-]
-
-UGenParams: TypeAlias = Dict[str, Union[UGenScalarInput, UGenVectorInput]]
-UGenRecursiveParams: TypeAlias = Union[UGenParams, List["UGenRecursiveParams"]]
 
 
 class Check(Enum):
@@ -364,8 +355,8 @@ def _get_method_for_rate(cls, calculation_rate: CalculationRate) -> Callable:
 
 
 def _compute_binary_op(
-    left: UGenRecursiveInput,
-    right: UGenRecursiveInput,
+    left: "UGenRecursiveInput",
+    right: "UGenRecursiveInput",
     special_index: BinaryOperator,
     float_operator: Optional[Callable] = None,
 ) -> "UGenOperable":
@@ -399,7 +390,7 @@ def _compute_binary_op(
 
 
 def _compute_unary_op(
-    source: UGenRecursiveInput,
+    source: "UGenRecursiveInput",
     special_index: UnaryOperator,
     float_operator: Optional[Callable] = None,
 ) -> "UGenOperable":
@@ -428,7 +419,7 @@ def _compute_unary_op(
 
 
 def _compute_ugen_map(
-    source: UGenRecursiveInput, ugen: Type["UGen"], **kwargs: UGenRecursiveInput
+    source: "UGenRecursiveInput", ugen: Type["UGen"], **kwargs: "UGenRecursiveInput"
 ) -> "UGenOperable":
     if isinstance(source, UGenSerializable):
         source = source.serialize()
@@ -452,7 +443,7 @@ class UGenOperable:
             float_operator=operator.abs,
         )
 
-    def __add__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __add__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -460,7 +451,7 @@ class UGenOperable:
             float_operator=operator.add,
         )
 
-    def __and__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __and__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -478,7 +469,7 @@ class UGenOperable:
             source=self, special_index=UnaryOperator.FLOOR, float_operator=math.floor
         )
 
-    def __floordiv__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __floordiv__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -486,7 +477,7 @@ class UGenOperable:
             float_operator=operator.floordiv,
         )
 
-    def __ge__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __ge__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -497,7 +488,7 @@ class UGenOperable:
     def __graph__(self) -> Graph:
         return self.__synthdef__().__graph__()
 
-    def __gt__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __gt__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -512,7 +503,7 @@ class UGenOperable:
             float_operator=operator.not_,
         )
 
-    def __le__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __le__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -520,7 +511,7 @@ class UGenOperable:
             float_operator=operator.le,
         )
 
-    def __lshift__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __lshift__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -528,7 +519,7 @@ class UGenOperable:
             float_operator=operator.lshift,
         )
 
-    def __lt__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __lt__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -536,7 +527,7 @@ class UGenOperable:
             float_operator=operator.lt,
         )
 
-    def __mod__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __mod__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -544,7 +535,7 @@ class UGenOperable:
             float_operator=operator.mod,
         )
 
-    def __mul__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __mul__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -559,7 +550,7 @@ class UGenOperable:
             float_operator=operator.neg,
         )
 
-    def __or__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __or__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -567,7 +558,7 @@ class UGenOperable:
             float_operator=operator.or_,
         )
 
-    def __pow__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __pow__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -575,7 +566,7 @@ class UGenOperable:
             float_operator=operator.pow,
         )
 
-    def __radd__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __radd__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -583,7 +574,7 @@ class UGenOperable:
             float_operator=operator.add,
         )
 
-    def __rand__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rand__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -591,7 +582,7 @@ class UGenOperable:
             float_operator=operator.and_,
         )
 
-    def __rfloordiv__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rfloordiv__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -599,7 +590,7 @@ class UGenOperable:
             float_operator=operator.floordiv,
         )
 
-    def __rmod__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rmod__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -607,7 +598,7 @@ class UGenOperable:
             float_operator=operator.mod,
         )
 
-    def __rmul__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rmul__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -615,7 +606,7 @@ class UGenOperable:
             float_operator=operator.mul,
         )
 
-    def __ror__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __ror__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -623,7 +614,7 @@ class UGenOperable:
             float_operator=operator.or_,
         )
 
-    def __rpow__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rpow__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -631,7 +622,7 @@ class UGenOperable:
             float_operator=operator.pow,
         )
 
-    def __rlshift__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rlshift__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -639,7 +630,7 @@ class UGenOperable:
             float_operator=operator.lshift,
         )
 
-    def __rrshift__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rrshift__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -647,7 +638,7 @@ class UGenOperable:
             float_operator=operator.rshift,
         )
 
-    def __rshift__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rshift__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -655,7 +646,7 @@ class UGenOperable:
             float_operator=operator.rshift,
         )
 
-    def __rsub__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rsub__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -663,7 +654,7 @@ class UGenOperable:
             float_operator=operator.sub,
         )
 
-    def __rtruediv__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rtruediv__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -671,7 +662,7 @@ class UGenOperable:
             float_operator=operator.truediv,
         )
 
-    def __rxor__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __rxor__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=expr,
             right=self,
@@ -682,7 +673,7 @@ class UGenOperable:
     def __str__(self) -> str:
         return str(self.__synthdef__())
 
-    def __sub__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __sub__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -712,7 +703,7 @@ class UGenOperable:
             builder._add_ugen(ugen)
         return builder.build(optimize=False)
 
-    def __truediv__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __truediv__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -720,7 +711,7 @@ class UGenOperable:
             float_operator=operator.truediv,
         )
 
-    def __xor__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def __xor__(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -728,7 +719,7 @@ class UGenOperable:
             float_operator=operator.xor,
         )
 
-    def absolute_difference(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def absolute_difference(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         """
         Calculate absolute difference between ugen graph and `expr`.
 
@@ -767,7 +758,7 @@ class UGenOperable:
             float_operator=lambda a, b: abs(a - b),
         )
 
-    def am_clip(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def am_clip(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -800,7 +791,7 @@ class UGenOperable:
             float_operator=math.atan,
         )
 
-    def as_maximum(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def as_maximum(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -808,7 +799,7 @@ class UGenOperable:
             float_operator=lambda a, b: max((a, b)),
         )
 
-    def as_minimum(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def as_minimum(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -816,7 +807,7 @@ class UGenOperable:
             float_operator=lambda a, b: min((a, b)),
         )
 
-    def atan2(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def atan2(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -833,8 +824,8 @@ class UGenOperable:
 
     def clip(
         self,
-        minimum: UGenRecursiveInput,
-        maximum: UGenRecursiveInput,
+        minimum: "UGenRecursiveInput",
+        maximum: "UGenRecursiveInput",
     ) -> "UGenOperable":
         from . import Clip
 
@@ -842,7 +833,7 @@ class UGenOperable:
             self, cast(Type[UGen], Clip), minimum=minimum, maximum=maximum
         )
 
-    def clip2(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def clip2(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -871,7 +862,7 @@ class UGenOperable:
             source=self, special_index=UnaryOperator.DB_TO_AMPLITUDE
         )
 
-    def difference_of_squares(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def difference_of_squares(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -896,7 +887,7 @@ class UGenOperable:
             source=self, special_index=UnaryOperator.FRACTIONAL_PART
         )
 
-    def greatest_common_divisor(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def greatest_common_divisor(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -908,7 +899,7 @@ class UGenOperable:
             source=self, special_index=UnaryOperator.HANNING_WINDOW
         )
 
-    def hypot(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def hypot(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -916,7 +907,7 @@ class UGenOperable:
             float_operator=math.hypot,
         )
 
-    def hypotx(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def hypotx(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -929,7 +920,7 @@ class UGenOperable:
     def hz_to_octave(self) -> "UGenOperable":
         return _compute_unary_op(source=self, special_index=UnaryOperator.HZ_TO_OCTAVE)
 
-    def is_equal_to(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def is_equal_to(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -937,7 +928,7 @@ class UGenOperable:
             float_operator=lambda a, b: float(a == b),
         )
 
-    def is_not_equal_to(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def is_not_equal_to(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -945,12 +936,12 @@ class UGenOperable:
             float_operator=lambda a, b: float(a != b),
         )
 
-    def lagged(self, lag_time: UGenRecursiveInput = 0.5) -> "UGenOperable":
+    def lagged(self, lag_time: "UGenRecursiveInput" = 0.5) -> "UGenOperable":
         from . import Lag
 
         return _compute_ugen_map(self, cast(Type[UGen], Lag), lag_time=lag_time)
 
-    def least_common_multiple(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def least_common_multiple(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -985,14 +976,14 @@ class UGenOperable:
     def reciprocal(self) -> "UGenOperable":
         return _compute_unary_op(source=self, special_index=UnaryOperator.RECIPROCAL)
 
-    def round(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def round(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
             special_index=BinaryOperator.ROUND,
         )
 
-    def round_up(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def round_up(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -1004,10 +995,10 @@ class UGenOperable:
 
     def scale(
         self,
-        input_minimum: UGenRecursiveInput,
-        input_maximum: UGenRecursiveInput,
-        output_minimum: UGenRecursiveInput,
-        output_maximum: UGenRecursiveInput,
+        input_minimum: "UGenRecursiveInput",
+        input_maximum: "UGenRecursiveInput",
+        output_minimum: "UGenRecursiveInput",
+        output_maximum: "UGenRecursiveInput",
         exponential: bool = False,
     ) -> "UGenOperable":
         from . import LinExp, LinLin
@@ -1052,7 +1043,7 @@ class UGenOperable:
     def squared(self) -> "UGenOperable":
         return _compute_unary_op(source=self, special_index=UnaryOperator.SQUARED)
 
-    def square_of_difference(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def square_of_difference(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -1060,7 +1051,7 @@ class UGenOperable:
             float_operator=lambda a, b: (a - b) ** 2,
         )
 
-    def square_of_sum(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def square_of_sum(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -1068,7 +1059,7 @@ class UGenOperable:
             float_operator=lambda a, b: (a + b) ** 2,
         )
 
-    def sum_of_squares(self, expr: UGenRecursiveInput) -> "UGenOperable":
+    def sum_of_squares(self, expr: "UGenRecursiveInput") -> "UGenOperable":
         return _compute_binary_op(
             left=self,
             right=expr,
@@ -1090,7 +1081,7 @@ class UGenOperable:
             float_operator=math.tanh,
         )
 
-    def transpose(self, semitones: UGenRecursiveInput) -> "UGenOperable":
+    def transpose(self, semitones: "UGenRecursiveInput") -> "UGenOperable":
         return (self.hz_to_midi() + semitones).midi_to_hz()
 
     def triangle_window(self) -> "UGenOperable":
@@ -1225,8 +1216,8 @@ class UGen(UGenOperable, Sequence):
         self,
         *,
         calculation_rate: CalculationRate = CalculationRate.SCALAR,
-        special_index: int = 0,
-        **kwargs: Union[UGenScalarInput, UGenVectorInput],
+        special_index: SupportsInt = 0,
+        **kwargs: Union["UGenScalarInput", "UGenVectorInput"],
     ) -> None:
         if self._valid_calculation_rates:
             assert calculation_rate in self._valid_calculation_rates
@@ -1234,7 +1225,7 @@ class UGen(UGenOperable, Sequence):
             calculation_rate=calculation_rate, **kwargs
         )
         self._calculation_rate = calculation_rate
-        self._special_index = special_index
+        self._special_index = int(special_index)
         input_keys: List[Union[str, Tuple[str, int]]] = []
         inputs: List[Union[OutputProxy, float]] = []
         for key in self._ordered_keys:
@@ -1315,9 +1306,9 @@ class UGen(UGenOperable, Sequence):
     @classmethod
     def _expand_params(
         cls,
-        params: Dict[str, UGenRecursiveInput],
+        params: Dict[str, "UGenRecursiveInput"],
         unexpanded_keys: Optional[Iterable[str]] = None,
-    ) -> UGenRecursiveParams:
+    ) -> "UGenRecursiveParams":
         unexpanded_keys_ = set(unexpanded_keys or ())
         size = 0
         for key, value in params.items():
@@ -1371,7 +1362,7 @@ class UGen(UGenOperable, Sequence):
         *,
         calculation_rate: CalculationRateLike,
         special_index: int = 0,
-        **kwargs: UGenRecursiveInput,
+        **kwargs: "UGenRecursiveInput",
     ) -> UGenOperable:
         """
         (
@@ -1416,8 +1407,8 @@ class UGen(UGenOperable, Sequence):
         cls,
         *,
         calculation_rate: CalculationRateLike = None,
-        special_index: int = 0,
-        **kwargs: Union[UGenScalarInput, UGenVectorInput],
+        special_index: SupportsInt = 0,
+        **kwargs: Union["UGenScalarInput", "UGenVectorInput"],
     ) -> UGenOperable:
         if (
             len(
@@ -1443,8 +1434,8 @@ class UGen(UGenOperable, Sequence):
         self,
         *,
         calculation_rate: CalculationRate,
-        **kwargs: Union[UGenScalarInput, UGenVectorInput],
-    ) -> Tuple[CalculationRate, Dict[str, Union[UGenScalarInput, UGenVectorInput]]]:
+        **kwargs: Union["UGenScalarInput", "UGenVectorInput"],
+    ) -> Tuple[CalculationRate, Dict[str, Union["UGenScalarInput", "UGenVectorInput"]]]:
         return calculation_rate, kwargs
 
     @property
@@ -1476,9 +1467,33 @@ class UGen(UGenOperable, Sequence):
         return self._special_index
 
 
+UGenScalarInput: TypeAlias = Union[SupportsFloat, UGenScalar]
+UGenVectorInput: TypeAlias = Union[UGenSerializable, Sequence[UGenScalarInput]]
+
+UGenRecursiveInput: TypeAlias = Union[
+    SupportsFloat, UGenOperable, UGenSerializable, Sequence["UGenRecursiveInput"]
+]
+
+UGenParams: TypeAlias = Dict[str, Union[UGenScalarInput, UGenVectorInput]]
+UGenRecursiveParams: TypeAlias = Union[UGenParams, List["UGenRecursiveParams"]]
+
+
 @ugen(is_pure=True)
 class UnaryOpUGen(UGen):
     source = param()
+
+    def __init__(
+        self,
+        *,
+        calculation_rate: CalculationRate,
+        source: UGenScalarInput,
+        special_index: SupportsInt = 0,
+    ) -> None:
+        super().__init__(
+            calculation_rate=calculation_rate,
+            source=source,
+            special_index=special_index,
+        )
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}.{self.calculation_rate.token}({self.operator.name})>"
@@ -1493,6 +1508,21 @@ class BinaryOpUGen(UGen):
     left = param()
     right = param()
 
+    def __init__(
+        self,
+        *,
+        calculation_rate: CalculationRate,
+        left: UGenScalarInput,
+        right: UGenScalarInput,
+        special_index: SupportsInt = 0,
+    ) -> None:
+        super().__init__(
+            calculation_rate=calculation_rate,
+            left=left,
+            right=right,
+            special_index=special_index,
+        )
+
     def __repr__(self) -> str:
         return f"<{type(self).__name__}.{self.calculation_rate.token}({self.operator.name})>"
 
@@ -1501,7 +1531,7 @@ class BinaryOpUGen(UGen):
         cls,
         *,
         calculation_rate: CalculationRateLike = None,
-        special_index: int = 0,
+        special_index: SupportsInt = 0,
         **kwargs: Union[UGenScalarInput, UGenVectorInput],
     ) -> UGenOperable:
         def process(
@@ -1583,7 +1613,7 @@ class Parameter(UGen):
         lag: Optional[float] = None,
     ) -> None:
         if isinstance(value, SupportsFloat):
-            self.value = (float(value),)
+            self.value: Tuple[float, ...] = (float(value),)
         else:
             self.value = tuple(float(x) for x in value)
         self.name = name
@@ -1918,6 +1948,7 @@ class SynthDef:
             inputs: Dict[str, str] = {}
             if isinstance(ugen, Control):
                 for parameter in ugen.parameters:
+                    assert parameter.name is not None
                     if len(parameter.value) == 1:
                         inputs[parameter.name] = str(parameter.value[0])
                     else:
@@ -1963,6 +1994,7 @@ class SynthDef:
         for control in controls:
             index = control.special_index
             for parameter in control.parameters:
+                assert parameter.name is not None
                 mapping[parameter.name] = (parameter, index)
                 index += len(parameter)
         return mapping
@@ -2793,23 +2825,6 @@ def decompile_synthdefs(value: bytes) -> List[SynthDef]:
         synthdef, index = _decompile_synthdef(value, index)
         synthdefs.append(synthdef)
     return synthdefs
-
-
-@ugen(ar=True, kr=True, is_output=True, channel_count=0, fixed_channel_count=True)
-class Out(UGen):
-    bus = param(0)
-    source = param(unexpanded=True)
-
-
-@ugen(ar=True, kr=True, is_pure=True)
-class SinOsc(UGen):
-    frequency = param(440.0)
-    phase = param(0.0)
-
-
-@ugen(ar=True, kr=True)
-class WhiteNoise(UGen):
-    pass
 
 
 class SuperColliderSynthDef:

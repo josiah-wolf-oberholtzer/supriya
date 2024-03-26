@@ -79,6 +79,7 @@ class Klank(UGen):
         frequency_offset=0,
         frequency_scale=1,
         source=None,
+        special_index=None,
         specifications=None,
     ):
         # TODO: Refactor this to not override __init__?

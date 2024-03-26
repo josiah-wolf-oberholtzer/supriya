@@ -40,27 +40,22 @@ class UGenTransformer:
         info = self._ctx.cls.info
 
         SupportsIntType = api.named_type("typing.SupportsInt")
-        UGenOperableType = api.named_type(
-            "supriya.ugens.core.UGenOperable",
-        )
+        CalculationRateType = api.named_type("supriya.enums.CalculationRate")
+        UGenOperableType = api.named_type("supriya.ugens.core.UGenOperable")
+        UGenScalarType = api.named_type("supriya.ugens.core.UGenScalar")
+        UGenVectorType = api.named_type("supriya.ugens.core.UGenVector")
         # api.named_type() breaks for these... why?
-        UGenInitScalarParamTypeSym = api.lookup_fully_qualified(
-            "supriya.ugens.core.UGenInitScalarParam"
-        )
-        UGenInitVectorParamTypeSym = api.lookup_fully_qualified(
-            "supriya.ugens.core.UGenInitVectorParam"
-        )
-        UGenRateVectorParamTypeSym = api.lookup_fully_qualified(
-            "supriya.ugens.core.UGenRateVectorParam"
-        )
+        UGenRecursiveInputTypeSym = api.lookup_fully_qualified("supriya.ugens.core.UGenRecursiveInput")
+        UGenScalarInputTypeSym = api.lookup_fully_qualified("supriya.ugens.core.UGenScalarInput")
+        UGenVectorInputTypeSym = api.lookup_fully_qualified("supriya.ugens.core.UGenVectorInput")
 
-        assert UGenInitScalarParamTypeSym.node is not None
-        assert UGenInitVectorParamTypeSym.node is not None
-        assert UGenRateVectorParamTypeSym.node is not None
+        assert UGenRecursiveInputTypeSym.node is not None
+        assert UGenScalarInputTypeSym.node is not None
+        assert UGenVectorInputTypeSym.node is not None
 
-        UGenInitScalarParamType = getattr(UGenInitScalarParamTypeSym.node, "target")
-        UGenInitVectorParamType = getattr(UGenInitVectorParamTypeSym.node, "target")
-        UGenRateVectorParamType = getattr(UGenRateVectorParamTypeSym.node, "target")
+        UGenRecursiveInputType = getattr(UGenRecursiveInputTypeSym.node, "target")
+        UGenScalarInputType = getattr(UGenScalarInputTypeSym.node, "target")
+        UGenVectorInputType = getattr(UGenVectorInputTypeSym.node, "target")
 
         decorator_arguments = {
             "ar": _get_decorator_bool_argument(self._ctx, "ar", False),
@@ -75,11 +70,24 @@ class UGenTransformer:
                 self._ctx, "fixed_channel_count", False
             ),
         }
-        init_args = []
+        init_args = [
+            Argument(
+                variable=Var("calculation_rate", CalculationRateType),
+                type_annotation=CalculationRateType,
+                initializer=None,
+                kind=ARG_OPT,
+            ),
+            Argument(
+                variable=Var("special_index", SupportsIntType),
+                type_annotation=SupportsIntType,
+                initializer=None,
+                kind=ARG_OPT,
+            )
+        ]
         rate_args = []
         for name, unexpanded in self.collect_params():
             init_type = (
-                UGenInitVectorParamType if unexpanded else UGenInitScalarParamType
+                UGenVectorInputType if unexpanded else UGenScalarInputType
             )
             init_args.append(
                 Argument(
@@ -91,8 +99,8 @@ class UGenTransformer:
             )
             rate_args.append(
                 Argument(
-                    variable=Var(name, UGenRateVectorParamType),
-                    type_annotation=UGenRateVectorParamType,
+                    variable=Var(name, UGenRecursiveInputType),
+                    type_annotation=UGenRecursiveInputType,
                     initializer=None,
                     kind=ARG_OPT,
                 )
@@ -101,7 +109,7 @@ class UGenTransformer:
                 api=api,
                 cls=cls,
                 name=name,
-                typ=UGenInitVectorParamType if unexpanded else UGenInitScalarParamType,
+                typ=UGenVectorType if unexpanded else UGenScalarType,
                 override_allow_incompatible=True,
             )
         if (
@@ -135,17 +143,17 @@ class UGenTransformer:
                 args=init_args,
                 return_type=NoneType(),
             )
-        return False
+        return True
 
 
-def _ugen_hook(ctx: ClassDefContext) -> None:
-    UGenTransformer(ctx).transform()
+def _ugen_hook(ctx: ClassDefContext) -> bool:
+    return UGenTransformer(ctx).transform()
 
 
 class SupriyaPlugin(Plugin):
-    def get_class_decorator_hook(
+    def get_class_decorator_hook_2(
         self, fullname: str
-    ) -> Optional[Callable[[ClassDefContext], None]]:
+    ) -> Optional[Callable[[ClassDefContext], bool]]:
         if fullname == "supriya.ugens.core.ugen":
             return _ugen_hook
         return None

@@ -282,6 +282,7 @@ class Poll(UGen):
     trigger = param()
     source = param()
     trigger_id = param(-1)
+    label = param(unexpanded=True)
 
     ### INITIALIZER ###
 
@@ -298,18 +299,16 @@ class Poll(UGen):
             if isinstance(source, UGen):
                 label = type(source).__name__
             elif isinstance(source, OutputProxy):
-                label = type(source.source).__name__
+                label = type(source.ugen).__name__
+        label = str(label)
         UGen.__init__(
             self,
             calculation_rate=calculation_rate,
+            label=[len(label), *(ord(c) for c in label)],
             source=source,
             trigger=trigger,
             trigger_id=trigger_id,
         )
-        label = str(label)
-        self._configure_input("label", len(label))
-        for character in label:
-            self._configure_input("label", ord(character))
 
     ### PUBLIC METHODS ###
 
@@ -342,34 +341,6 @@ class Poll(UGen):
             trigger=trigger,
             trigger_id=trigger_id,
         )
-
-    ### PUBLIC PROPERTIES ###
-
-    @property
-    def label(self):
-        """
-        Gets `label` input of Poll.
-
-        ::
-
-            >>> sine = supriya.ugens.SinOsc.ar()
-            >>> trigger = supriya.ugens.Impulse.kr(frequency=1)
-            >>> poll = supriya.ugens.Poll.ar(
-            ...     label="Foo",
-            ...     source=sine,
-            ...     trigger=trigger,
-            ...     trigger_id=1234,
-            ... ).source
-            >>> poll.label
-            'Foo'
-
-        Returns ugen input.
-        """
-        index = tuple(self._ordered_input_names).index("trigger_id") + 2
-        characters = self._inputs[index:]
-        characters = [chr(int(_)) for _ in characters]
-        label = "".join(characters)
-        return label
 
 
 @ugen(ar=True, kr=True)
