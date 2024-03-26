@@ -1394,6 +1394,8 @@ class UGen(UGenOperable, Sequence):
         def recurse(
             all_expanded_params: UGenRecursiveParams,
         ) -> UGenOperable:
+            if not isinstance(all_expanded_params, dict) and len(all_expanded_params) == 1:
+                all_expanded_params = all_expanded_params[0]
             if isinstance(all_expanded_params, dict):
                 return cls._new_single(
                     calculation_rate=calculation_rate,
@@ -2102,21 +2104,6 @@ class SynthDefBuilder:
                     starting_control_index += 1
         return controls, control_mapping
 
-    def _build_pvchain_mapping(self, ugens: List[UGen]) -> Dict[UGen, Tuple[UGen, int]]:
-        from . import PV_ChainUGen, PV_Copy
-
-        mapping: Dict[UGen, Tuple[UGen, int]] = {}
-        for ugen in ugens:
-            if isinstance(ugen, PV_Copy) or not isinstance(ugen, PV_ChainUGen):
-                continue
-            for i, input_ in enumerate(ugen.inputs):
-                if not isinstance(input_, OutputProxy) or not isinstance(
-                    input_.ugen, PV_ChainUGen
-                ):
-                    continue
-                mapping.setdefault(input_.ugen, []).append((ugen, i))
-        return mapping
-
     def _cleanup_local_bufs(self, ugens: List[UGen]) -> List[UGen]:
         from . import LocalBuf, MaxLocalBufs
 
@@ -2140,29 +2127,39 @@ class SynthDefBuilder:
         return filtered_ugens
 
     def _cleanup_pv_chains(self, ugens: List[UGen]) -> List[UGen]:
-        from . import LocalBuf, PV_Copy
+        from . import LocalBuf, PV_ChainUGen, PV_Copy
 
-        mapping = self._build_pvchain_mapping(ugens)
+        mapping: Dict[UGen, Tuple[UGen, int]] = {}
+        for ugen in ugens:
+            if isinstance(ugen, PV_Copy) or not isinstance(ugen, PV_ChainUGen):
+                continue
+            for i, input_ in enumerate(ugen.inputs):
+                if not isinstance(input_, OutputProxy) or not isinstance(
+                    input_.ugen, PV_ChainUGen
+                ):
+                    continue
+                mapping.setdefault(input_.ugen, []).append((ugen, i))
+
         for antecedent, descendant_pairs in mapping.items():
             if len(descendant_pairs) < 2:
                 continue
             for descendant, input_index in descendant_pairs[:-1]:
                 fft_size = getattr(antecedent, "fft_size")
                 # Create a new LocalBuf and PV_Copy
-                new_buffer = cast(UGen, LocalBuf.ir(frame_count=fft_size))
+                new_buffer = cast(OutputProxy, LocalBuf.ir(frame_count=fft_size))
                 pv_copy = cast(
-                    UGen, PV_Copy.kr(pv_chain_a=antecedent, pv_chain_b=new_buffer)
+                    OutputProxy, PV_Copy.kr(pv_chain_a=antecedent, pv_chain_b=new_buffer)
                 )
                 # Patch the PV_Copy into the descendant's inputs
                 inputs = list(descendant.inputs)
-                inputs[input_index] = pv_copy[0]
+                inputs[input_index] = pv_copy
                 descendant._inputs = tuple(inputs)
                 # Insert the new Localbuf and PV_Copy into the graph
                 index = ugens.index(descendant)
                 replacement = []
-                if isinstance(fft_size, UGen):
-                    replacement.append(fft_size)
-                replacement.extend([new_buffer, pv_copy])
+                if isinstance(fft_size, OutputProxy):
+                    replacement.append(fft_size.ugen)
+                replacement.extend([new_buffer.ugen, pv_copy.ugen])
                 ugens[index:index] = replacement
         return ugens
 
