@@ -166,38 +166,40 @@ class Envelope:
         curves = [curve]
         return Envelope(amplitudes=amplitudes, durations=durations, curves=curves)
 
-    def serialize(self, for_interpolation=False) -> UGenVector:
+    def serialize(self, **kwargs) -> UGenVector:
         result: List[Union[UGenOperable, float]] = []
-        if for_interpolation:
-            result.append(self.offset or 0.0)
-            result.append(self.initial_amplitude)
-            result.append(len(self.envelope_segments))
-            result.append(self.duration)
-            for amplitude, duration, curve in self._envelope_segments:
-                result.append(duration)
-                if isinstance(curve, EnvelopeShape):
-                    shape = int(curve)
-                    curve = 0.0
-                else:
-                    shape = 5
-                result.append(shape)
-                result.append(curve)
-                result.append(amplitude)
-        else:
-            result.append(self.initial_amplitude)
-            result.append(len(self.envelope_segments))
-            result.append(-99 if self.release_node is None else self.release_node)
-            result.append(-99 if self.loop_node is None else self.loop_node)
-            for amplitude, duration, curve in self._envelope_segments:
-                result.append(amplitude)
-                result.append(duration)
-                if isinstance(curve, EnvelopeShape):
-                    shape = int(curve)
-                    curve = 0.0
-                else:
-                    shape = 5
-                result.append(shape)
-                result.append(curve)
+        result.append(self.initial_amplitude)
+        result.append(len(self.envelope_segments))
+        result.append(-99 if self.release_node is None else self.release_node)
+        result.append(-99 if self.loop_node is None else self.loop_node)
+        for amplitude, duration, curve in self._envelope_segments:
+            result.append(amplitude)
+            result.append(duration)
+            if isinstance(curve, EnvelopeShape):
+                shape = int(curve)
+                curve = 0.0
+            else:
+                shape = 5
+            result.append(shape)
+            result.append(curve)
+        return UGenVector(*result)
+
+    def serialize_interpolated(self) -> UGenVector:
+        result: List[Union[UGenOperable, float]] = []
+        result.append(self.offset or 0.0)
+        result.append(self.initial_amplitude)
+        result.append(len(self.envelope_segments))
+        result.append(self.duration)
+        for amplitude, duration, curve in self._envelope_segments:
+            result.append(duration)
+            if isinstance(curve, EnvelopeShape):
+                shape = int(curve)
+                curve = 0.0
+            else:
+                shape = 5
+            result.append(shape)
+            result.append(curve)
+            result.append(amplitude)
         return UGenVector(*result)
 
     @classmethod
