@@ -3,7 +3,7 @@ Enumerations.
 """
 
 from collections.abc import Sequence
-from typing import cast
+from typing import SupportsFloat, cast
 
 from uqbar.enums import IntEnumeration, StrictEnumeration
 
@@ -135,7 +135,7 @@ class CalculationRate(IntEnumeration):
                 ParameterRate.SCALAR: CalculationRate.SCALAR,
                 ParameterRate.TRIGGER: CalculationRate.CONTROL,
             }[expr]
-        elif isinstance(expr, (int, float)) and not isinstance(expr, cls):
+        elif isinstance(expr, (int, float, SupportsFloat)) and not isinstance(expr, cls):
             return cast(CalculationRate, CalculationRate.SCALAR)
         elif isinstance(expr, Parameter):
             name = expr.parameter_rate.name

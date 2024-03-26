@@ -3,7 +3,7 @@ import math
 
 from ..enums import CalculationRate
 from .basic import Mix
-from .core import PseudoUGen, UGen, param, ugen
+from .core import PseudoUGen, UGen, param, ugen, _get_method_for_rate
 
 
 @ugen(ar=True, kr=True, channel_count=2, fixed_channel_count=True)
@@ -354,7 +354,7 @@ class Splay(PseudoUGen):
                 level = level * math.sqrt(1 / len(source))
             else:
                 level = level / len(source)
-        panners = UGen._get_method_for_rate(Pan2, calculation_rate)(
+        panners = _get_method_for_rate(Pan2, calculation_rate)(
             source=source, position=positions
         )
         return Mix.multichannel(panners, 2) * level
