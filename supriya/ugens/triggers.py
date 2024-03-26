@@ -290,6 +290,7 @@ class Poll(UGen):
         calculation_rate=None,
         label=None,
         source=None,
+        special_index=None,
         trigger=None,
         trigger_id=-1,
     ):

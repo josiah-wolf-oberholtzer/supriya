@@ -135,7 +135,9 @@ class CalculationRate(IntEnumeration):
                 ParameterRate.SCALAR: CalculationRate.SCALAR,
                 ParameterRate.TRIGGER: CalculationRate.CONTROL,
             }[expr]
-        elif isinstance(expr, (int, float, SupportsFloat)) and not isinstance(expr, cls):
+        elif isinstance(expr, (int, float, SupportsFloat)) and not isinstance(
+            expr, cls
+        ):
             return cast(CalculationRate, CalculationRate.SCALAR)
         elif isinstance(expr, Parameter):
             name = expr.parameter_rate.name

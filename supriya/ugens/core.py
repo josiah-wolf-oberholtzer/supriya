@@ -1394,7 +1394,10 @@ class UGen(UGenOperable, Sequence):
         def recurse(
             all_expanded_params: UGenRecursiveParams,
         ) -> UGenOperable:
-            if not isinstance(all_expanded_params, dict) and len(all_expanded_params) == 1:
+            if (
+                not isinstance(all_expanded_params, dict)
+                and len(all_expanded_params) == 1
+            ):
                 all_expanded_params = all_expanded_params[0]
             if isinstance(all_expanded_params, dict):
                 return cls._new_single(
@@ -2148,7 +2151,8 @@ class SynthDefBuilder:
                 # Create a new LocalBuf and PV_Copy
                 new_buffer = cast(OutputProxy, LocalBuf.ir(frame_count=fft_size))
                 pv_copy = cast(
-                    OutputProxy, PV_Copy.kr(pv_chain_a=antecedent, pv_chain_b=new_buffer)
+                    OutputProxy,
+                    PV_Copy.kr(pv_chain_a=antecedent, pv_chain_b=new_buffer),
                 )
                 # Patch the PV_Copy into the descendant's inputs
                 inputs = list(descendant.inputs)
@@ -2470,7 +2474,9 @@ def synthdef(*args: Union[str, Tuple[str, float]]) -> Callable[[Callable], Synth
             value = parameter.default
             if value is inspect._empty:
                 value = 0.0
-            kwargs[name] = builder.add_parameter(name=name, lag=lag, rate=rate, value=value)
+            kwargs[name] = builder.add_parameter(
+                name=name, lag=lag, rate=rate, value=value
+            )
         with builder:
             func(**kwargs)
         return builder.build(name=func.__name__)

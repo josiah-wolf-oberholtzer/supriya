@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Sequence, Tuple
 
 from .. import utils
 from ..enums import CalculationRate
@@ -129,6 +129,8 @@ class Mix(PseudoUGen):
 
     @classmethod
     def new(cls, sources):
+        if not isinstance(sources, Sequence):
+            sources = [sources]
         sources = list(flatten(sources))
         summed_sources = []
         for part in utils.group_by_count(sources, 4):

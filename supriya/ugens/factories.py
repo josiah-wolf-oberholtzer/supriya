@@ -1,5 +1,6 @@
 import copy
 import types
+from typing import Sequence
 
 from ..enums import DoneAction
 from . import (
@@ -290,6 +291,8 @@ class SynthDefFactory:
         source = input_class.ar(bus=parameter, channel_count=state["channel_count"])
         if self._input.get("windowed"):
             source *= state["window"]
+        if not isinstance(source, Sequence):
+            source = UGenVector(source)
         return source
 
     def _build_feedback_loop_input(self, builder, source, state):
@@ -299,6 +302,8 @@ class SynthDefFactory:
                 source = local_in
             else:
                 source += local_in
+        if not isinstance(source, Sequence):
+            source = UGenVector(source)
         return source
 
     def _build_feedback_loop_output(self, builder, source, state):
@@ -368,7 +373,7 @@ class SynthDefFactory:
             source = self._build_feedback_loop_input(builder, source, state)
             for signal_block in self._signal_blocks:
                 source = signal_block(builder, source, state)
-                if not isinstance(source, UGenOperable):
+                if not isinstance(source, Sequence):
                     source = UGenVector(source)
             self._build_output(builder, source, state)
             self._build_feedback_loop_output(builder, source, state)
@@ -1667,7 +1672,7 @@ class SynthDefFactory:
                 ...             threshold=builder[band_name + "threshold"].db_to_amplitude(),
                 ...         )
                 ...         band *= builder[band_name + "postgain"].db_to_amplitude()
-                ...         compressors.extend(band)
+                ...         compressors.extend(band if isinstance(band, Sequence) else [band])
                 ...     source = supriya.ugens.Mix.multichannel(
                 ...         compressors,
                 ...         state["channel_count"],
@@ -1692,7 +1697,7 @@ class SynthDefFactory:
                 synthdef:
                     name: ...
                     ugens:
-                    -   Control.ir:
+                    -   Control.kr:
                             band_1_clamp_time: 0.01
                             band_1_postgain: 0.0
                             band_1_pregain: 0.0
@@ -1722,6 +1727,7 @@ class SynthDefFactory:
                             band_4_slope_below: 1.0
                             band_4_threshold: -6.0
                             mix: 0.0
+                    -   Control.ir:
                             out: 0.0
                     -   In.ar:
                             bus: Control.ir[0:out]

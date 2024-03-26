@@ -1,9 +1,17 @@
-import collections
 import math
 
 from ..enums import CalculationRate
 from .basic import Mix
-from .core import PseudoUGen, UGen, param, ugen, _get_method_for_rate
+from .core import (
+    PseudoUGen,
+    UGen,
+    UGenOperable,
+    UGenRecursiveParams,
+    UGenVector,
+    _get_method_for_rate,
+    param,
+    ugen,
+)
 
 
 @ugen(ar=True, kr=True, channel_count=2, fixed_channel_count=True)
@@ -242,7 +250,7 @@ class Splay(PseudoUGen):
         >>> source = supriya.ugens.SinOsc.ar(frequency=[333, 444, 555, 666, 777])
         >>> splay = supriya.ugens.Splay.ar(source=source)
         >>> splay
-        UGenVector({2})
+        <UGenVector([<BinaryOpUGen.ar(MULTIPLICATION)[0]>, <BinaryOpUGen.ar(MULTIPLICATION)[0]>])>
 
     ::
 
@@ -311,39 +319,51 @@ class Splay(PseudoUGen):
 
     ### CLASS VARIABLES ###
 
-    _ordered_input_names = collections.OrderedDict(
-        [
-            ("spread", 1),
-            ("level", 1),
-            ("center", 0),
-            ("normalize", True),
-            ("source", None),
-        ]
+    _ordered_keys = (
+        "spread",
+        "level",
+        "center",
+        "normalize",
+        "source",
     )
-    _unexpanded_input_names = ("source",)
+    _unexpanded_keys = ("source",)
 
     @classmethod
     def _new_expanded(cls, calculation_rate=None, **kwargs):
-        dictionaries = UGen._expand_params(
-            kwargs, unexpanded_keys=["source"]
-        )
-        ugens = [
-            cls._new_single(calculation_rate=calculation_rate, **dictionary)
-            for dictionary in dictionaries
-        ]
-        return Mix.multichannel(ugens, 2)
+        def recurse(
+            all_expanded_params: UGenRecursiveParams,
+        ) -> UGenOperable:
+            if (
+                not isinstance(all_expanded_params, dict)
+                and len(all_expanded_params) == 1
+            ):
+                all_expanded_params = all_expanded_params[0]
+            if isinstance(all_expanded_params, dict):
+                return cls._new_single(
+                    calculation_rate=calculation_rate,
+                    special_index=0,
+                    **all_expanded_params,
+                )
+            return UGenVector(
+                *(recurse(expanded_params) for expanded_params in all_expanded_params)
+            )
 
-    ### CLASS METHODS ###
+        return Mix.multichannel(
+            recurse(UGen._expand_params(kwargs, unexpanded_keys=cls._unexpanded_keys)),
+            2,
+        )
 
     @classmethod
     def _new_single(
         cls,
+        *,
         calculation_rate=None,
         center=0,
         level=1,
         normalize=True,
         source=None,
         spread=1,
+        **kwargs,
     ):
         positions = [
             (i * (2 / (len(source) - 1)) - 1) * spread + center
